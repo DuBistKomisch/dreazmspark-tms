@@ -1,3 +1,19 @@
+                     ,----,                           
+                   ,/   .`|        ____               
+    ,---,        ,`   .'  :      ,'  , `.  .--.--.    
+  .'  .' `\    ;    ;     /   ,-+-,.' _ | /  /    '.  
+,---.'     \ .'___,/    ,' ,-+-. ;   , |||  :  /`. /  
+|   |  .`\  ||    :     | ,--.'|'   |  ;|;  |  |--`   
+:   : |  '  |;    |.';  ;|   |  ,', |  ':|  :  ;_     
+|   ' '  ;  :`----'  |  ||   | /  | |  || \  \    `.  
+'   | ;  .  |    '   :  ;'   | :  | :  |,  `----.   \ 
+|   | :  |  '    |   |  ';   . |  ; |--'   __ \  \  | 
+'   : | /  ;     '   :  ||   : |  | ,     /  /`--'  / 
+|   | '` ,/      ;   |.' |   : '  |/     '--'.     /  
+;   :  .'        '---'   ;   | |`-'        `--'---'   
+|   ,.'                  |   ;/                       
+'---'                    '---'                        
+
 Team Members
 ============
 
@@ -43,4 +59,41 @@ connections
 *sunday boolean
 
 Each row represents a single step between stations at any particular combination
-of time and days. 
+of time and days it occurs on. This format allows maximum flexibity when writing
+detailed queries. This format also prevents duplicates by ignoring connections
+with the same data, for example the Werribee timetable lists parts of the 
+Sydenham and Williamstown services which overlap with the Werribee line.
+
+Using the Program
+=================
+
+To compile the source files:
+  make
+
+To parse the timetables and create the database:
+  make db
+
+To confirm the database was made:
+  make dump
+
+To actually run the program:
+  make gui
+
+To remove compiled files and the database:
+  make clean
+
+Alternatively, Eclipse can be used to compile and run the GUI,
+but the database still needs to be generated using make db.
+
+Version Control System
+======================
+
+Since SVN was not promptly set up, we used github instead.
+
+http://www.github.com/DuBistKomisch/dreazmspark-tms
+
+Citations
+=========
+
+turtle.png was adapted from images available at:
+http://bilinick.blogspot.com.au/2010/05/touche-turtle-cartoon-photo.html
