@@ -29,10 +29,11 @@ Files
 lib        - .jar libraries used by the program
 src        - .java files
 tt         - raw .html timetables from ptv.vic.gov.au
+.classpath - eclipse project configuration
+.project   - eclipse project configuration
 Makefile   - command line compilation and execution
 README     - this file
-.classpath
-.project   - eclipse project configuration files
+turtle.png - an image of a turtle
 
 Database Schema
 ===============
