@@ -1,29 +1,35 @@
 JC = javac
 JX = java
-JLIBS = sqlitejdbc-v056.jar
-JARGS = -cp .:${JLIBS}
+SRC = src
+BIN = bin
+LIB = lib
+JARGS = -cp ${BIN}:${LIB}/*
 TT = tt
 
-CLASSES = ParseTimetable.java GUI.java DumpDatabase.java
+SOURCES = ${wildcard ${SRC}/*.java}
+CLASSES = ${patsubst ${SRC}/%.java,${BIN}/%.class,${SOURCES}}
 
-.SUFFIXES: .java .class
+# compile all the files
+all: ${CLASSES}
 
-all: ${CLASSES:.java=.class}
+# how to make a .java into a .class
+${CLASSES}: ${BIN}/%.class:${SRC}/%.java
+	mkdir -p ${BIN}
+	${JC} -d ${BIN} ${SRC}/$*.java
 
-.java.class:
-	${JC} $*.java
-
+# run the GUI
 gui: all
 	${JX} ${JARGS} GUI
 
-parse: all
+# generate ptv.db
+db: all
 	for i in ${TT}/*.html; do echo "parsing $$i..."; ${JX} ${JARGS} ParseTimetable $$i; done
 
+# dump database info
 dump: all
 	${JX} ${JARGS} DumpDatabase
 
-archive:
-	zip -r dtms.zip ${CLASSES} ${TT} ${JLIBS} Makefile README
-
+# delete unnecesary files
 clean:
-	rm -f *.class ptv.db
+	rm -f ptv.db
+	rm -rf bin
