@@ -1,0 +1,46 @@
+Team Members
+============
+
+s3237007 Ashley Narita
+s3322445 Harry Leach
+s3334445 Jake Barnes
+
+Tutor: Trevor Reynolds
+
+Files
+=====
+
+lib        - .jar libraries used by the program
+src        - .java files
+tt         - raw .html timetables from ptv.vic.gov.au
+Makefile   - command line compilation and execution
+README     - this file
+.classpath
+.project   - eclipse project configuration files
+
+Database Schema
+===============
+
+stations
+--------
+*id integer
+name string
+
+Associates a station with an integer id to save storing strings in connections.
+
+connections
+-----------
+*source integer
+*destination integer
+*time_source integer
+*time_destination integer
+*monday boolean
+*tuesday boolean
+*wednesday boolean
+*thursday boolean
+*friday boolean
+*saturday boolean
+*sunday boolean
+
+Each row represents a single step between stations at any particular combination
+of time and days. 
