@@ -1,0 +1,100 @@
+                     ,----,                           
+                   ,/   .`|        ____               
+    ,---,        ,`   .'  :      ,'  , `.  .--.--.    
+  .'  .' `\    ;    ;     /   ,-+-,.' _ | /  /    '.  
+,---.'     \ .'___,/    ,' ,-+-. ;   , |||  :  /`. /  
+|   |  .`\  ||    :     | ,--.'|'   |  ;|;  |  |--`   
+:   : |  '  |;    |.';  ;|   |  ,', |  ':|  :  ;_     
+|   ' '  ;  :`----'  |  ||   | /  | |  || \  \    `.  
+'   | ;  .  |    '   :  ;'   | :  | :  |,  `----.   \ 
+|   | :  |  '    |   |  ';   . |  ; |--'   __ \  \  | 
+'   : | /  ;     '   :  ||   : |  | ,     /  /`--'  / 
+|   | '` ,/      ;   |.' |   : '  |/     '--'.     /  
+;   :  .'        '---'   ;   | |`-'        `--'---'   
+|   ,.'                  |   ;/                       
+'---'                    '---'                        
+
+Team Members
+============
+
+s3237007 Ashley Narita
+s3322445 Harry Leach
+s3334445 Jake Barnes
+
+Tutor: Trevor Reynolds
+
+Files
+=====
+
+lib        - .jar libraries used by the program
+src        - .java files
+tt         - raw .html timetables from ptv.vic.gov.au
+.classpath - eclipse project configuration
+.project   - eclipse project configuration
+Makefile   - command line compilation and execution
+README     - this file
+turtle.png - an image of a turtle
+
+Database Schema
+===============
+
+stations
+--------
+*id integer
+name string
+
+Associates a station with an integer id to save storing strings in connections.
+
+connections
+-----------
+*source integer
+*destination integer
+*time_source integer
+*time_destination integer
+*monday boolean
+*tuesday boolean
+*wednesday boolean
+*thursday boolean
+*friday boolean
+*saturday boolean
+*sunday boolean
+
+Each row represents a single step between stations at any particular combination
+of time and days it occurs on. This format allows maximum flexibity when writing
+detailed queries. This format also prevents duplicates by ignoring connections
+with the same data, for example the Werribee timetable lists parts of the 
+Sydenham and Williamstown services which overlap with the Werribee line.
+
+Using the Program
+=================
+
+To compile the source files:
+  make
+
+To parse the timetables and create the database:
+  make db
+
+To confirm the database was made:
+  make dump
+
+To actually run the program:
+  make gui
+
+To remove compiled files and the database:
+  make clean
+
+Alternatively, Eclipse can be used to compile and run the GUI,
+but the database still needs to be generated using make db.
+
+Version Control System
+======================
+
+Since SVN was not promptly set up, we used github instead.
+
+http://www.github.com/DuBistKomisch/dreazmspark-tms
+
+Citations
+=========
+
+turtle.png was adapted from images available at:
+http://bilinick.blogspot.com.au/2010/05/touche-turtle-cartoon-photo.html
