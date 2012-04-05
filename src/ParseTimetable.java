@@ -88,15 +88,60 @@ public class ParseTimetable
 
     int isProcessingStations = -1;
     ArrayList<Integer> stations = new ArrayList<Integer>(); // station id for each row of timetable
+    // TODO generalise this to any identical subsequent rows
     int flindersStreetDivide = -1; // row of departing flinders street
     
     int isProcessingTimetableRow = -1;
     ArrayList<ArrayList<Integer>> columns = new ArrayList<ArrayList<Integer>>(); // store timetable since html does row by row
     int currentColumn = -1;
 
+    // which day(s) is/are the timetable for
+    static int days[][] = {{1, 1, 1, 1, 1, 0, 0}, {1, 1, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 0, 1}};
+    int whichDay = 0;
+    int isProcessingFridayOnly = -1;
+    ArrayList<Integer> fridayOnly = new ArrayList<Integer>();
+
+    static boolean isDefinedAtAll (AttributeSet a, Object name)
+    {
+      for (Enumeration<?> e = a.getAttributeNames(); e.hasMoreElements(); )
+        if (e.nextElement() == name)
+          return true;
+      return false;
+    }
+
     public void handleStartTag (HTML.Tag tag, MutableAttributeSet a, int pos)
     {
       stack.push(tag);
+
+      // weekdays
+      if (tag == HTML.Tag.OPTION && a.containsAttribute(HTML.Attribute.VALUE, "T0") && isDefinedAtAll(a, HTML.Attribute.SELECTED))
+      {
+        whichDay = 0;
+      }
+
+      // saturday
+      if (tag == HTML.Tag.OPTION && a.containsAttribute(HTML.Attribute.VALUE, "T2") && isDefinedAtAll(a, HTML.Attribute.SELECTED))
+      {
+        whichDay = 3;
+      }
+
+      // sunday
+      if (tag == HTML.Tag.OPTION && a.containsAttribute(HTML.Attribute.VALUE, "UJ") && isDefinedAtAll(a, HTML.Attribute.SELECTED))
+      {
+        whichDay = 4;
+      }
+
+      // started processing friday only header
+      if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.CLASS, "ttHeader") && !a.isDefined(HTML.Attribute.STYLE) && isProcessingFridayOnly == -1)
+      {
+        isProcessingFridayOnly = stack.size();
+      }
+
+      // pad friday only
+      if (tag == HTML.Tag.DIV && isProcessingFridayOnly > -1)
+      {
+        fridayOnly.add(0);
+      }
 
       // started processing stations
       if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.ID, "ttMargin"))
@@ -116,6 +161,12 @@ public class ParseTimetable
     {
       stack.pop();
 
+      // finished processing friday only header
+      if (stack.size() < isProcessingFridayOnly)
+      {
+        isProcessingFridayOnly = -2; // ambiguous class above will match a second div!
+      }
+
       // finished processing stations
       if (stack.size() < isProcessingStations)
       {
@@ -131,11 +182,11 @@ public class ParseTimetable
       // done reading data, write it to the database
       if (tag == HTML.Tag.HTML)
       {
-        PreparedStatement prep = null;
         // hooray for prepared statements
+        PreparedStatement prep = null;
         try
         {
-          prep = conn.prepareStatement("insert into connections values (?, ?, ?, ?, 1, 1, 1, 1, 1, 0, 0);");
+          prep = conn.prepareStatement("insert into connections values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         }
         catch (Exception e)
         {
@@ -144,8 +195,9 @@ public class ParseTimetable
         }
 
         // process each column
-        for (ArrayList<Integer> column : columns)
+        for (int c = 0; c < columns.size(); c++)
         {
+          ArrayList<Integer> column = columns.get(c);
           int prevStation = -1;
           int prevTime = -1;
 
@@ -164,6 +216,8 @@ public class ParseTimetable
                   prep.setInt(2, stations.get(row));
                   prep.setInt(3, prevTime);
                   prep.setInt(4, column.get(row));
+                  for (int i = 0; i < 7; i++)
+                    prep.setBoolean(5 + i, days[whichDay == 0 ? fridayOnly.get(c) : whichDay][i] != 0);
                   prep.addBatch();
                 }
                 catch (Exception e)
@@ -199,6 +253,19 @@ public class ParseTimetable
     {
       HTML.Tag tag = stack.peek();
       String strData = new String(data);
+
+      // found friday only
+      if (tag == HTML.Tag.SPAN && isProcessingFridayOnly > -1)
+      {
+        if (strData.equals("Mo-Th"))
+        {
+          fridayOnly.set(fridayOnly.size() - 1, 1);
+        }
+        if (strData.equals("Fr"))
+        {
+          fridayOnly.set(fridayOnly.size() - 1, 2);
+        }
+      }
 
       // found a station
       if (isProcessingStations != -1 && tag == HTML.Tag.A)
