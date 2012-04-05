@@ -1,9 +1,12 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import java.sql.*;
@@ -99,12 +102,68 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     timeSpinner.setEditor(timeEditor);
     timeSpinner.setValue(new Date());
     
+    	pane.setBackground(Color.cyan);
+    
+   		a.gridx = 0;
+   		a.gridy = 0;
+    	
+    	JLabel title = new JLabel("<html><FONT COLOR=RED><FONT SIZE=40>DREAZMSPARK PRESENTS</FONT></html>");
+    	pane.add(title,a);
+    	
+    	
+    	a.gridy = 1;
+    	a.insets = new Insets(100,0,0,0);
+    	
+    	BufferedImage myPicture = ImageIO.read(new File("turtle.png"));
+    	JLabel picLabel = new JLabel(new ImageIcon( myPicture ));
+    	pane.add(picLabel,a);
+
+    	
+    	Toolkit.getDefaultToolkit().beep(); 
+    	setVisible(true);
+    	waiting(3);
+    	pane.remove(title);
+    	pane.remove(picLabel);
+    	this.repaint();
+    	
+    	pane.setBackground(Color.red);
+    	
+    	a.insets = new Insets(0,0,0,0);
+    	
+    	JLabel produced = new JLabel("<html><FONT COLOR=#00FFFF><FONT SIZE=30>PRODUCED BY:<br><br>Harry<br>Ashley<br>and Jake</FONT></html>");
+    
+    	pane.add(produced,a);
+        
+    	Toolkit.getDefaultToolkit().beep();
+    	setVisible(true);
+    	waiting(3);
+    	pane.remove(produced);
+    	this.repaint();
+    	
+    	pane.setBackground(Color.magenta);
+    	
+    	a.gridx = 0;
+   		a.gridy = 0;
+    	
+    	JLabel name = new JLabel("<html><FONT COLOR=GREEN><FONT SIZE=80>TRAIN MANAGEMENT PRO</FONT></html>");
+    	pane.add(name,a);
+    	
+    	Toolkit.getDefaultToolkit().beep();
+    	setVisible(true);
+    	waiting(3);
+    	pane.remove(name);
+    	this.repaint();
+    
+    	pane.setBackground(Color.yellow);
+    
+    
     	a.gridx = 0;
     	a.gridy = 0;
     	a.anchor = GridBagConstraints.LINE_START;
     	a.ipadx = 20;
-    	
-    	
+    	a.ipady = 0;
+    	a.fill = GridBagConstraints.NONE;
+    	a.insets = new Insets(0,50,20,50);
 		
 		pane.add(new JLabel("Start Point"),a);
 		a.gridx = 1;
@@ -114,13 +173,12 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 		a.gridx = 3;
 		pane.add(new JLabel("Day"),a);
 		
+		a.insets = new Insets(0,50,0,50);
 		a.gridx = 0;
 		a.gridy = 1;
 		pane.add(depSearch,a);
 		a.gridx = 1;
 		pane.add(arrSearch,a);
-		
-		
 
 		a.gridx = 0;
 		a.gridy = 2;
@@ -138,13 +196,17 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 		a.gridheight = 2;
 		a.fill = GridBagConstraints.BOTH;
 		a.ipady = 80;
+		a.insets = new Insets(50,50,0,50);
 		pane.add(go,a);
 		
 		depSearch.addKeyListener(this);
 		arrSearch.addKeyListener(this);
 		go.addActionListener(this);
 		
+		Toolkit.getDefaultToolkit().beep();
 		setVisible(true);
+		
+		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -221,5 +283,19 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 		updateLists();
 		
 	}
+  
+  public static void waiting (int n){
+      
+      long t0, t1;
+
+      t0 =  System.currentTimeMillis();
+
+      do{
+          t1 = System.currentTimeMillis();
+      }
+      while ((t1 - t0) < (n * 1000));
+  }
+  
+ 
 }
 
