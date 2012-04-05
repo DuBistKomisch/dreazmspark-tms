@@ -310,7 +310,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 			a.gridx = 5;
 			results.add(new JLabel(displayTimesThree.get(i)),a);
 			
-			a.gridy = i;
+			a.gridy = i + 1;
 		}
 		
 		pane.setLayout(new BorderLayout());
