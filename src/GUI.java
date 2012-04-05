@@ -119,9 +119,24 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     	pane.add(picLabel,a);
 
     	
-    	Toolkit.getDefaultToolkit().beep(); 
+    	int p;
+    	p = 0;
     	setVisible(true);
-    	waiting(3);
+    	for(int i = 0; i < 30; i++){
+    	Toolkit.getDefaultToolkit().beep(); 
+    	waiting(1);
+    	
+    	if (p == 0){
+    		p = 1;
+    		pane.setBackground(Color.cyan);
+    	}
+    	else {
+    		p = 0;
+    		pane.setBackground(Color.green);
+    	}
+    		
+    	
+    	}
     	pane.remove(title);
     	pane.remove(picLabel);
     	this.repaint();
@@ -134,9 +149,23 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     
     	pane.add(produced,a);
         
-    	Toolkit.getDefaultToolkit().beep();
+    	
     	setVisible(true);
-    	waiting(3);
+    	for(int i = 0; i < 30; i++){
+        	Toolkit.getDefaultToolkit().beep(); 
+        	waiting(1);
+        	
+        	if (p == 0){
+        		p = 1;
+        		pane.setBackground(Color.red);
+        	}
+        	else {
+        		p = 0;
+        		pane.setBackground(Color.yellow);
+        	}
+        		
+        	
+        	}
     	pane.remove(produced);
     	this.repaint();
     	
@@ -148,9 +177,23 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     	JLabel name = new JLabel("<html><FONT COLOR=GREEN><FONT SIZE=80>TRAIN MANAGEMENT PRO</FONT></html>");
     	pane.add(name,a);
     	
-    	Toolkit.getDefaultToolkit().beep();
+    	
     	setVisible(true);
-    	waiting(3);
+    	for(int i = 0; i < 30; i++){
+        	Toolkit.getDefaultToolkit().beep(); 
+        	waiting(1);
+        	
+        	if (p == 0){
+        		p = 1;
+        		pane.setBackground(Color.pink);
+        	}
+        	else {
+        		p = 0;
+        		pane.setBackground(Color.black);
+        	}
+        		
+        	
+        	}
     	pane.remove(name);
     	this.repaint();
     
@@ -218,6 +261,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 	
     //Refresh stop lists whenever search terms change.
     //Possible TODO: Update lists independently depending on which was changed so selection is not reset.
+	Toolkit.getDefaultToolkit().beep();
     filterStopsArr.clear();
     filterStopsDep.clear();
     depModel.clear();
@@ -293,7 +337,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
       do{
           t1 = System.currentTimeMillis();
       }
-      while ((t1 - t0) < (n * 1000));
+      while ((t1 - t0) < (n * 100));
   }
   
  
