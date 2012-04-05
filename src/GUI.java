@@ -20,6 +20,13 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 	DefaultListModel arrModel;
 	DefaultListModel dayModel;
 	
+	ArrayList<String> displayStopsOne = new ArrayList<String>();	//PUT THE STRINGS OF STOPS AND TIMES IN THESE
+	ArrayList<String> displayStopsTwo = new ArrayList<String>();
+	ArrayList<String> displayStopsThree = new ArrayList<String>();
+	ArrayList<String> displayTimesOne = new ArrayList<String>();
+	ArrayList<String> displayTimesTwo = new ArrayList<String>();
+	ArrayList<String> displayTimesThree = new ArrayList<String>();
+	
 	JList dep;
 	JList arr;
 	JScrollPane arrList;
@@ -81,6 +88,15 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 		dayModel.addElement("Friday");
 		dayModel.addElement("Saturday");
 		dayModel.addElement("Sunday");
+		
+		for (int i = 0; i < 70; i++){		//SAMPLE RESULTS - REPLACE WITH REAL RESULTS
+			displayStopsOne.add("SampleStop");
+			displayStopsTwo.add("SampleStop2");
+			displayStopsThree.add("SampleStop3");
+			displayTimesOne.add("TimeOne");
+			displayTimesTwo.add("TimeTwo");
+			displayTimesThree.add("TimeThree");
+		}
 		
 		dep = new JList(depModel);
 		arr = new JList(arrModel);
@@ -253,8 +269,59 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		
 		//WHAT HAPPENS WHEN YOU PRESS THE BIG GO BUTTON (Hopefully)
-    System.out.println(timeSpinner.getValue());
+		
+		JPanel results = new JPanel(new GridBagLayout());
+		JScrollPane Scrolltastic = new JScrollPane(results);
+		
+		
+		pane.removeAll();
+		Toolkit.getDefaultToolkit().beep();
+		
+		//Scrolltastic.add(pane);
+		
+		
+		a.gridx = 0;
+		a.gridy = 0;
+		a.gridwidth = 1;
+		a.gridheight = 1;
+		a.fill = GridBagConstraints.NONE;
+		a.ipady = 0;
+		a.ipadx = 0;
+		
+		
+
+		
+		for (int i = 0; i < displayStopsOne.size(); i++){
+			
+			a.gridx = 0;
+			
+			
+			results.add(new JLabel(displayStopsOne.get(i)),a);
+			a.gridx = 1;
+			results.add(new JLabel(displayTimesOne.get(i)),a);
+			a.gridx = 2;
+			results.add(new JLabel(displayStopsTwo.get(i)),a);
+			a.gridx = 3;
+			results.add(new JLabel(displayTimesTwo.get(i)),a);
+			a.gridx = 4;
+			results.add(new JLabel(displayStopsThree.get(i)),a);
+			a.gridx = 5;
+			results.add(new JLabel(displayTimesThree.get(i)),a);
+			
+			a.gridy = i;
+		}
+		
+		pane.setLayout(new BorderLayout());
+		
+		pane.add(Scrolltastic);
+		
+		this.repaint();
+		setVisible(true);
+		
+		
+		
 	}
 
   public void updateLists() {
