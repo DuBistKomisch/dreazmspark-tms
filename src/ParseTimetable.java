@@ -29,7 +29,7 @@ public class ParseTimetable
       conn = DriverManager.getConnection("jdbc:sqlite:ptv.db");
       Statement stat = conn.createStatement();
       stat.executeUpdate("create table if not exists stations (id integer primary key autoincrement, name string);");
-      stat.executeUpdate("create table if not exists connections (source integer, destination integer, source_time integer, destination_time, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, primary key (source, destination, source_time, destination_time, monday, tuesday, wednesday, thursday, friday, saturday, sunday) on conflict ignore);");
+      stat.executeUpdate("create table if not exists connections (source integer references stations (id), destination integer references stations (id), source_time integer, destination_time, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, primary key (source, destination, source_time, destination_time, monday, tuesday, wednesday, thursday, friday, saturday, sunday) on conflict ignore);");
     }
     catch (SQLException e)
     {

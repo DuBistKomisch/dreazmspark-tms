@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -130,7 +129,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     	a.gridy = 1;
     	a.insets = new Insets(100,0,0,0);
     	
-    	BufferedImage myPicture = ImageIO.read(new File("turtle.png"));
+    	BufferedImage myPicture = ImageIO.read(new File("content/turtle.png"));
     	JLabel picLabel = new JLabel(new ImageIcon( myPicture ));
     	pane.add(picLabel,a);
 
@@ -140,7 +139,6 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     	setVisible(true);
     	for(int i = 0; i < 30; i++){
     	Toolkit.getDefaultToolkit().beep(); 
-    	waiting(1);
     	
     	if (p == 0){
     		p = 1;
@@ -151,6 +149,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     		pane.setBackground(Color.green);
     	}
     		
+    	waiting(1);
     	
     	}
     	pane.remove(title);
@@ -185,7 +184,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener {
     	pane.remove(produced);
     	this.repaint();
     	
-    	pane.setBackground(Color.magenta);
+    	pane.setBackground(Color.pink);
     	
     	a.gridx = 0;
    		a.gridy = 0;

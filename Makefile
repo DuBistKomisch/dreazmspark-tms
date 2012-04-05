@@ -4,7 +4,6 @@ SRC = src
 BIN = bin
 LIB = lib
 JARGS = -cp ${BIN}:${LIB}/*
-TT = tt
 
 SOURCES = ${wildcard ${SRC}/*.java}
 CLASSES = ${patsubst ${SRC}/%.java,${BIN}/%.class,${SOURCES}}
@@ -14,22 +13,21 @@ all: ${CLASSES}
 
 # how to make a .java into a .class
 ${CLASSES}: ${BIN}/%.class:${SRC}/%.java
-	mkdir -p ${BIN}
+	@mkdir -p ${BIN}
 	${JC} -d ${BIN} ${SRC}/$*.java
-
-# run the GUI
-gui: all
-	${JX} ${JARGS} GUI
 
 # generate ptv.db
 db: all
-	for i in ${TT}/*.html; do echo "parsing $$i..."; ${JX} ${JARGS} ParseTimetable $$i; done
+	@for i in content/tt/*.html; do echo "parsing $$i..."; ${JX} ${JARGS} ParseTimetable $$i; done
 
 # dump database info
 dump: all
-	${JX} ${JARGS} DumpDatabase
+	@${JX} ${JARGS} DumpDatabase
+
+# run the GUI
+gui: all
+	@${JX} ${JARGS} GUI
 
 # delete unnecesary files
 clean:
-	rm -f ptv.db
-	rm -rf bin
+	rm -rf ${BIN} ptv.db

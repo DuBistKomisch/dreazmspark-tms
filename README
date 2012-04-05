@@ -26,17 +26,20 @@ Tutor: Trevor Reynolds
 Files
 =====
 
-lib        - .jar libraries used by the program
-src        - .java files
-tt         - raw .html timetables from ptv.vic.gov.au
-.classpath - eclipse project configuration
-.project   - eclipse project configuration
-Makefile   - command line compilation and execution
-README     - this file
-turtle.png - an image of a turtle
+lib/         - .jar libraries used by the program
+src/         - .java files
+content/     - data used at runtime
+  tt/        - raw .html timetables from http://ptv.vic.gov.au
+  turtle.png - an image of a turtle
+.classpath   - eclipse classpath configuration
+.project     - eclipse project configuration
+Makefile     - command line compilation and execution
+README       - this file
 
 Database Schema
 ===============
+
+Note: * indicates primary key and ^ indicates foreign key
 
 stations
 --------
@@ -47,8 +50,8 @@ Associates a station with an integer id to save storing strings in connections.
 
 connections
 -----------
-*source integer
-*destination integer
+*^source integer
+*^destination integer
 *time_source integer
 *time_destination integer
 *monday boolean
