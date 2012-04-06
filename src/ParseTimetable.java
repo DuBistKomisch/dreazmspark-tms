@@ -88,8 +88,6 @@ public class ParseTimetable
 
     int isProcessingStations = -1;
     ArrayList<Integer> stations = new ArrayList<Integer>(); // station id for each row of timetable
-    // TODO generalise this to any identical subsequent rows
-    int flindersStreetDivide = -1; // row of departing flinders street
     
     int isProcessingTimetableRow = -1;
     ArrayList<ArrayList<Integer>> columns = new ArrayList<ArrayList<Integer>>(); // store timetable since html does row by row
@@ -207,8 +205,8 @@ public class ParseTimetable
             // if the train stops here
             if (column.get(row) > -1)
             {
-              // if there was a previous station and it's not also flinders street
-              if (prevStation != -1 && row != flindersStreetDivide)
+              // if there was a previous station and it's not a "waiting at the station" step
+              if (prevStation != -1 && prevStation != stations.get(row))
               {
                 try
                 {
@@ -303,12 +301,6 @@ public class ParseTimetable
           // oh noes
           System.out.println(e.getMessage());
         }
-      }
-
-      // found flinders street divide
-      if (isProcessingStations != -1 && tag == HTML.Tag.B && strData.indexOf("DEP") != -1)
-      {
-        flindersStreetDivide = stations.size() - 1;
       }
 
       // found timetable data
