@@ -14,6 +14,8 @@
 |   ,.'                  |   ;/                       
 '---'                    '---'                        
 
+(it's not a real README without ASCII art text, amirite?)
+
 Team Members
 ============
 
@@ -29,12 +31,14 @@ Files
 lib/         - .jar libraries used by the program
 src/         - .java files
 content/     - data used at runtime
-  tt/        - raw .html timetables from http://ptv.vic.gov.au
+  tt/        - raw .html timetables from http://ptv.vic.gov.au/timetables/
+               with names of the form <source>_<dest>_<days>.html
   turtle.png - an image of a turtle
 .classpath   - eclipse classpath configuration
 .project     - eclipse project configuration
 Makefile     - command line compilation and execution
 README       - this file
+ptv.db       - pre-filled SQLite database, see below for how to regenerate it
 
 Database Schema
 ===============
@@ -71,23 +75,39 @@ Sydenham and Williamstown services which overlap with the Werribee line.
 Using the Program
 =================
 
-To compile the source files:
+Eclipse
+-------
+
+Import the directory as a project (Eclipse should recognise the .project file).
+
+You can need to alter the Build Path settings to select the right JRE you have
+installed on your particular system.
+
+Since a pre-filled database is including, you can just run GUI.java to use it.
+
+To generate the database from the .html timetables, use the Makefile.
+
+Make
+----
+
+To compile the program files:
   make
 
 To parse the timetables and create the database:
   make db
+Note that no new information will be added if it has already been filled. Use:
+  make clean && make
+to clear the database and recompile the program files before hand.
 
 To confirm the database was made:
   make dump
+This will print our the stations table and a summary of the connections table.
 
 To actually run the program:
   make gui
 
-To remove compiled files and the database:
+To remove compiled program files and the database:
   make clean
-
-Alternatively, Eclipse can be used to compile and run the GUI,
-but the database still needs to be generated using make db.
 
 Version Control System
 ======================
@@ -99,5 +119,5 @@ http://www.github.com/DuBistKomisch/dreazmspark-tms
 Citations
 =========
 
-turtle.png was adapted from images available at:
+turtle.png was adapted from images available for free at:
 http://bilinick.blogspot.com.au/2010/05/touche-turtle-cartoon-photo.html
