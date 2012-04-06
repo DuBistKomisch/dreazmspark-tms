@@ -80,10 +80,10 @@ Eclipse
 
 Import the directory as a project (Eclipse should recognise the .project file).
 
-You can need to alter the Build Path settings to select the right JRE you have
+You may need to alter the Build Path settings to select the right JRE you have
 installed on your particular system.
 
-Since a pre-filled database is including, you can just run GUI.java to use it.
+Since a pre-filled database is included, you can just run GUI.java.
 
 To generate the database from the .html timetables, use the Makefile.
 
@@ -94,10 +94,8 @@ To compile the program files:
   make
 
 To parse the timetables and create the database:
-  make db
-Note that no new information will be added if it has already been filled. Use:
-  make clean && make
-to clear the database and recompile the program files before hand.
+  make cleandb && make db
+Simply running 'make db' won't add any new data.
 
 To confirm the database was made:
   make dump
@@ -106,7 +104,7 @@ This will print our the stations table and a summary of the connections table.
 To actually run the program:
   make gui
 
-To remove compiled program files and the database:
+To remove compiled program files:
   make clean
 
 Version Control System

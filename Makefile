@@ -28,6 +28,9 @@ dump: all
 gui: all
 	@${JX} ${JARGS} GUI
 
-# delete unnecesary files
+# delete compiled files
 clean:
-	rm -rf ${BIN} ptv.db
+	rm -rf ${BIN}
+
+cleandb:
+	rm ptv.db
