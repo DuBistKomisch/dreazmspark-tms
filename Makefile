@@ -18,19 +18,19 @@ ${CLASSES}: ${BIN}/%.class:${SRC}/%.java
 
 # generate ptv.db
 db: all
-	@for i in content/tt/*.html; do echo "parsing $$i..."; ${JX} ${JARGS} ParseTimetable $$i; done
+	${JX} ${JARGS} ParseTimetable content/tt
 
 # dump database info
 dump: all
-	@${JX} ${JARGS} DumpDatabase
+	${JX} ${JARGS} DumpDatabase
 
 # run the GUI
 gui: all
-	@${JX} ${JARGS} GUI
+	${JX} ${JARGS} GUI
 
 # delete compiled files
 clean:
 	rm -rf ${BIN}
 
 cleandb:
-	rm ptv.db
+	rm -f ptv.db

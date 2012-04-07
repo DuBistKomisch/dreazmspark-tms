@@ -80,12 +80,13 @@ Eclipse
 
 Import the directory as a project (Eclipse should recognise the .project file).
 
-You may need to alter the Build Path settings to select the right JRE you have
-installed on your particular system.
+You may need to alter the Build Path configuration to select the right JRE you
+have installed on your particular system.
 
-Since a pre-filled database is included, you can just run GUI.java.
+Since a pre-filled database is included, you can just run GUI.
 
-To generate the database from the .html timetables, use the Makefile.
+To generate the database from the .html timetables, delete ptv.db and then
+run ParseTimetable with content/tt as the only argument.
 
 Make
 ----

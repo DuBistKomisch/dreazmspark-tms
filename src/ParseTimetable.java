@@ -45,11 +45,19 @@ public class ParseTimetable
       System.exit(0);
     }
 
-    Reader reader = null;
+    File files[] = {};
     try
     {
       // open file
-      reader = new FileReader(args[0]);
+      File root = new File(args[0]);
+      if (root.isDirectory())
+      {
+        files = root.listFiles(new HTMLFileFilter());
+      }
+      else
+      {
+        files = new File[] {root};
+      }
     }
     catch (Exception e)
     {
@@ -57,27 +65,40 @@ public class ParseTimetable
       System.exit(0);
     }
 
-    // parse file
-    HTMLEditorKit.ParserCallback callback = new Callback();
+    // parse file(s)
     ParserDelegator delegator = new ParserDelegator();
-    try
+    for (int i = 0; i < files.length; i++)
     {
-      delegator.parse(reader, callback, true);
-    }
-    catch (Exception e)
-    {
-      System.out.println("error while parsing: " + e.getMessage());
-      e.printStackTrace(System.out);
+      System.out.printf("[%3d%%] parsing %s\n", 100 * i / files.length, files[i].getName());
+      try
+      {
+        delegator.parse(new FileReader(files[i]), new Callback(), true);
+      }
+      catch (Exception e)
+      {
+        System.err.println("unhandled error while parsing: " + e.getMessage());
+        e.printStackTrace(System.err);
+      }
     }
 
     // done
+    System.out.println("[100%] parsed " + files.length + " files");
     try
     {
       conn.close();
     }
     catch (SQLException e)
     {
-      System.out.println("couldn't close database connection");
+      System.err.println("couldn't close database connection");
+    }
+  }
+
+  static class HTMLFileFilter implements FileFilter
+  {
+    public boolean accept (File f)
+    {
+      String name = f.getName();
+      return name.substring(name.length() - 5).equals(".html");
     }
   }
 
@@ -188,7 +209,8 @@ public class ParseTimetable
         }
         catch (Exception e)
         {
-          System.out.println(e.getMessage());
+          System.err.println(e.getMessage());
+          e.printStackTrace(System.err);
           return;
         }
 
@@ -220,8 +242,8 @@ public class ParseTimetable
                 }
                 catch (Exception e)
                 {
-                  // oh noes, prep was closed?
-                  System.out.println(e.getMessage());
+                  System.err.println(e.getMessage());
+                  e.printStackTrace(System.err);
                 }
               }
               
@@ -242,7 +264,8 @@ public class ParseTimetable
         }
         catch (Exception e)
         {
-          System.out.println(e.getMessage());
+          System.err.println(e.getMessage());
+          e.printStackTrace(System.err);
         }
       }
     }
@@ -298,8 +321,8 @@ public class ParseTimetable
         }
         catch (SQLException e)
         {
-          // oh noes
-          System.out.println(e.getMessage());
+          System.err.println(e.getMessage());
+          e.printStackTrace(System.err);
         }
       }
 
