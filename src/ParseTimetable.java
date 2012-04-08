@@ -29,8 +29,7 @@ public class ParseTimetable
       conn = DriverManager.getConnection("jdbc:sqlite:ptv.db");
       Statement stat = conn.createStatement();
       stat.executeUpdate("create table if not exists stations (id integer primary key autoincrement, name string);");
-      // TODO add days to primary key?
-      stat.executeUpdate("create table if not exists connections (source integer, destination integer, source_time integer, destination_time, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, primary key (source, destination, source_time, destination_time) on conflict ignore);");
+      stat.executeUpdate("create table if not exists connections (source integer references stations (id), destination integer references stations (id), source_time integer, destination_time, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, primary key (source, destination, source_time, destination_time, monday, tuesday, wednesday, thursday, friday, saturday, sunday) on conflict ignore);");
     }
     catch (SQLException e)
     {
@@ -46,11 +45,19 @@ public class ParseTimetable
       System.exit(0);
     }
 
-    Reader reader = null;
+    File files[] = {};
     try
     {
       // open file
-      reader = new FileReader(args[0]);
+      File root = new File(args[0]);
+      if (root.isDirectory())
+      {
+        files = root.listFiles(new HTMLFileFilter());
+      }
+      else
+      {
+        files = new File[] {root};
+      }
     }
     catch (Exception e)
     {
@@ -58,27 +65,40 @@ public class ParseTimetable
       System.exit(0);
     }
 
-    // parse file
-    HTMLEditorKit.ParserCallback callback = new Callback();
+    // parse file(s)
     ParserDelegator delegator = new ParserDelegator();
-    try
+    for (int i = 0; i < files.length; i++)
     {
-      delegator.parse(reader, callback, true);
-    }
-    catch (Exception e)
-    {
-      System.out.println("error while parsing: " + e.getMessage());
-      e.printStackTrace(System.out);
+      System.out.printf("[%3d%%] parsing %s\n", 100 * i / files.length, files[i].getName());
+      try
+      {
+        delegator.parse(new FileReader(files[i]), new Callback(), true);
+      }
+      catch (Exception e)
+      {
+        System.err.println("unhandled error while parsing: " + e.getMessage());
+        e.printStackTrace(System.err);
+      }
     }
 
     // done
+    System.out.println("[100%] parsed " + files.length + " files");
     try
     {
       conn.close();
     }
     catch (SQLException e)
     {
-      System.out.println("couldn't close database connection");
+      System.err.println("couldn't close database connection");
+    }
+  }
+
+  static class HTMLFileFilter implements FileFilter
+  {
+    public boolean accept (File f)
+    {
+      String name = f.getName();
+      return name.substring(name.length() - 5).equals(".html");
     }
   }
 
@@ -89,15 +109,58 @@ public class ParseTimetable
 
     int isProcessingStations = -1;
     ArrayList<Integer> stations = new ArrayList<Integer>(); // station id for each row of timetable
-    int flindersStreetDivide = -1; // row of departing flinders street
     
     int isProcessingTimetableRow = -1;
     ArrayList<ArrayList<Integer>> columns = new ArrayList<ArrayList<Integer>>(); // store timetable since html does row by row
     int currentColumn = -1;
 
+    // which day(s) is/are the timetable for
+    static int days[][] = {{1, 1, 1, 1, 1, 0, 0}, {1, 1, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 0, 1}};
+    int whichDay = 0;
+    int isProcessingFridayOnly = -1;
+    ArrayList<Integer> fridayOnly = new ArrayList<Integer>();
+
+    static boolean isDefinedAtAll (AttributeSet a, Object name)
+    {
+      for (Enumeration<?> e = a.getAttributeNames(); e.hasMoreElements(); )
+        if (e.nextElement() == name)
+          return true;
+      return false;
+    }
+
     public void handleStartTag (HTML.Tag tag, MutableAttributeSet a, int pos)
     {
       stack.push(tag);
+
+      // weekdays
+      if (tag == HTML.Tag.OPTION && a.containsAttribute(HTML.Attribute.VALUE, "T0") && isDefinedAtAll(a, HTML.Attribute.SELECTED))
+      {
+        whichDay = 0;
+      }
+
+      // saturday
+      if (tag == HTML.Tag.OPTION && a.containsAttribute(HTML.Attribute.VALUE, "T2") && isDefinedAtAll(a, HTML.Attribute.SELECTED))
+      {
+        whichDay = 3;
+      }
+
+      // sunday
+      if (tag == HTML.Tag.OPTION && a.containsAttribute(HTML.Attribute.VALUE, "UJ") && isDefinedAtAll(a, HTML.Attribute.SELECTED))
+      {
+        whichDay = 4;
+      }
+
+      // started processing friday only header
+      if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.CLASS, "ttHeader") && !a.isDefined(HTML.Attribute.STYLE) && isProcessingFridayOnly == -1)
+      {
+        isProcessingFridayOnly = stack.size();
+      }
+
+      // pad friday only
+      if (tag == HTML.Tag.DIV && isProcessingFridayOnly > -1)
+      {
+        fridayOnly.add(0);
+      }
 
       // started processing stations
       if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.ID, "ttMargin"))
@@ -117,6 +180,12 @@ public class ParseTimetable
     {
       stack.pop();
 
+      // finished processing friday only header
+      if (stack.size() < isProcessingFridayOnly)
+      {
+        isProcessingFridayOnly = -2; // ambiguous class above will match a second div!
+      }
+
       // finished processing stations
       if (stack.size() < isProcessingStations)
       {
@@ -132,21 +201,23 @@ public class ParseTimetable
       // done reading data, write it to the database
       if (tag == HTML.Tag.HTML)
       {
-        PreparedStatement prep = null;
         // hooray for prepared statements
+        PreparedStatement prep = null;
         try
         {
-          prep = conn.prepareStatement("insert into connections values (?, ?, ?, ?, 1, 1, 1, 1, 1, 0, 0);");
+          prep = conn.prepareStatement("insert into connections values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         }
         catch (Exception e)
         {
-          System.out.println(e.getMessage());
+          System.err.println(e.getMessage());
+          e.printStackTrace(System.err);
           return;
         }
 
         // process each column
-        for (ArrayList<Integer> column : columns)
+        for (int c = 0; c < columns.size(); c++)
         {
+          ArrayList<Integer> column = columns.get(c);
           int prevStation = -1;
           int prevTime = -1;
 
@@ -156,8 +227,8 @@ public class ParseTimetable
             // if the train stops here
             if (column.get(row) > -1)
             {
-              // if there was a previous station and it's not also flinders street
-              if (prevStation != -1 && row != flindersStreetDivide)
+              // if there was a previous station and it's not a "waiting at the station" step
+              if (prevStation != -1 && prevStation != stations.get(row))
               {
                 try
                 {
@@ -165,12 +236,14 @@ public class ParseTimetable
                   prep.setInt(2, stations.get(row));
                   prep.setInt(3, prevTime);
                   prep.setInt(4, column.get(row));
+                  for (int i = 0; i < 7; i++)
+                    prep.setBoolean(5 + i, days[whichDay == 0 ? fridayOnly.get(c) : whichDay][i] != 0);
                   prep.addBatch();
                 }
                 catch (Exception e)
                 {
-                  // oh noes, prep was closed?
-                  System.out.println(e.getMessage());
+                  System.err.println(e.getMessage());
+                  e.printStackTrace(System.err);
                 }
               }
               
@@ -191,7 +264,8 @@ public class ParseTimetable
         }
         catch (Exception e)
         {
-          System.out.println(e.getMessage());
+          System.err.println(e.getMessage());
+          e.printStackTrace(System.err);
         }
       }
     }
@@ -200,6 +274,19 @@ public class ParseTimetable
     {
       HTML.Tag tag = stack.peek();
       String strData = new String(data);
+
+      // found friday only
+      if (tag == HTML.Tag.SPAN && isProcessingFridayOnly > -1)
+      {
+        if (strData.equals("Mo-Th"))
+        {
+          fridayOnly.set(fridayOnly.size() - 1, 1);
+        }
+        if (strData.equals("Fr"))
+        {
+          fridayOnly.set(fridayOnly.size() - 1, 2);
+        }
+      }
 
       // found a station
       if (isProcessingStations != -1 && tag == HTML.Tag.A)
@@ -234,15 +321,9 @@ public class ParseTimetable
         }
         catch (SQLException e)
         {
-          // oh noes
-          System.out.println(e.getMessage());
+          System.err.println(e.getMessage());
+          e.printStackTrace(System.err);
         }
-      }
-
-      // found flinders street divide
-      if (isProcessingStations != -1 && tag == HTML.Tag.B && strData.indexOf("DEP") != -1)
-      {
-        flindersStreetDivide = stations.size() - 1;
       }
 
       // found timetable data

@@ -1,3 +1,21 @@
+                     ,----,                           
+                   ,/   .`|        ____               
+    ,---,        ,`   .'  :      ,'  , `.  .--.--.    
+  .'  .' `\    ;    ;     /   ,-+-,.' _ | /  /    '.  
+,---.'     \ .'___,/    ,' ,-+-. ;   , |||  :  /`. /  
+|   |  .`\  ||    :     | ,--.'|'   |  ;|;  |  |--`   
+:   : |  '  |;    |.';  ;|   |  ,', |  ':|  :  ;_     
+|   ' '  ;  :`----'  |  ||   | /  | |  || \  \    `.  
+'   | ;  .  |    '   :  ;'   | :  | :  |,  `----.   \ 
+|   | :  |  '    |   |  ';   . |  ; |--'   __ \  \  | 
+'   : | /  ;     '   :  ||   : |  | ,     /  /`--'  / 
+|   | '` ,/      ;   |.' |   : '  |/     '--'.     /  
+;   :  .'        '---'   ;   | |`-'        `--'---'   
+|   ,.'                  |   ;/                       
+'---'                    '---'                        
+
+(it's not a real README without ASCII art text, amirite?)
+
 Team Members
 ============
 
@@ -10,16 +28,22 @@ Tutor: Trevor Reynolds
 Files
 =====
 
-lib        - .jar libraries used by the program
-src        - .java files
-tt         - raw .html timetables from ptv.vic.gov.au
-Makefile   - command line compilation and execution
-README     - this file
-.classpath
-.project   - eclipse project configuration files
+lib/         - .jar libraries used by the program
+src/         - .java files
+content/     - data used at runtime
+  tt/        - raw .html timetables from http://ptv.vic.gov.au/timetables/
+               with names of the form <source>_<dest>_<days>.html
+  turtle.png - an image of a turtle
+.classpath   - eclipse classpath configuration
+.project     - eclipse project configuration
+Makefile     - command line compilation and execution
+README       - this file
+ptv.db       - pre-filled SQLite database, see below for how to regenerate it
 
 Database Schema
 ===============
+
+Note: * indicates primary key and ^ indicates foreign key
 
 stations
 --------
@@ -30,8 +54,8 @@ Associates a station with an integer id to save storing strings in connections.
 
 connections
 -----------
-*source integer
-*destination integer
+*^source integer
+*^destination integer
 *time_source integer
 *time_destination integer
 *monday boolean
@@ -43,4 +67,56 @@ connections
 *sunday boolean
 
 Each row represents a single step between stations at any particular combination
-of time and days. 
+of time and days it occurs on. This format allows maximum flexibity when writing
+detailed queries. This format also prevents duplicates by ignoring connections
+with the same data, for example the Werribee timetable lists parts of the 
+Sydenham and Williamstown services which overlap with the Werribee line.
+
+Using the Program
+=================
+
+Eclipse
+-------
+
+Import the directory as a project (Eclipse should recognise the .project file).
+
+You may need to alter the Build Path configuration to select the right JRE you
+have installed on your particular system.
+
+Since a pre-filled database is included, you can just run GUI.
+
+To generate the database from the .html timetables, delete ptv.db and then
+run ParseTimetable with content/tt as the only argument.
+
+Make
+----
+
+To compile the program files:
+  make
+
+To parse the timetables and create the database:
+  make cleandb && make db
+Simply running 'make db' won't add any new data.
+
+To confirm the database was made:
+  make dump
+This will print our the stations table and a summary of the connections table.
+
+To actually run the program:
+  make gui
+
+To remove compiled program files:
+  make clean
+
+Version Control System
+======================
+
+Since SVN was not promptly set up, we used github instead.
+
+http://www.github.com/DuBistKomisch/dreazmspark-tms
+
+Citations
+=========
+
+turtle.png was adapted from images available for free at:
+http://bilinick.blogspot.com.au/2010/05/touche-turtle-cartoon-photo.html

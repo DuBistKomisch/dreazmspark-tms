@@ -37,13 +37,19 @@ public class DumpDatabase
     // print out connection count
     try
     {
-      rs = stat.executeQuery("select count(*) from connections");
+      String days[] = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
       System.out.println("connections");
       System.out.println("-----------");
-      System.out.println("way too many to print, so here's the total number of rows:");
-      while (rs.next())
+      System.out.println("day count");
+      System.out.println("--- -----");
+      for (int i = 0; i < days.length; i++)
       {
-        System.out.println(rs.getInt("count(*)"));
+        rs = stat.executeQuery("select count(*) from connections WHERE " + days[i] + " = 1");
+        while (rs.next())
+        {
+          System.out.printf("%s %d\n", days[i], rs.getInt("count(*)"));
+        }
+        rs.close();
       }
       System.out.println();
     }
