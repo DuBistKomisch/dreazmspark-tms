@@ -3,14 +3,16 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame implements ActionListener, KeyListener
 {
+	Connection conn;
+	
 	ArrayList<String> listStops = new ArrayList<String>();
 	ArrayList<String> filterStopsArr = new ArrayList<String>();
 	ArrayList<String> filterStopsDep = new ArrayList<String>();
@@ -52,7 +54,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 		
 		// import database driver and init connection
 		Class.forName("org.sqlite.JDBC");
-		Connection conn = DriverManager.getConnection("jdbc:sqlite:ptv.db");
+		conn = DriverManager.getConnection("jdbc:sqlite:ptv.db");
 		Statement stat = conn.createStatement();
 
 		// get list of stations from the database
@@ -93,7 +95,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 		// set up date selector
 		timeSpinner = new JSpinner(new SpinnerDateModel());
 		timeSpinner.setEditor(new JSpinner.DateEditor(timeSpinner, "E HH:mm"));
-		timeSpinner.setValue(new Date());
+		timeSpinner.setValue(new java.util.Date());
 		
 		// most important line of code
 		go = new JButton("GO!");
@@ -235,48 +237,72 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 	// on pressing GO!
 	public void actionPerformed(ActionEvent e)
 	{
-		// TODO get results from Functions
-		for (int i = 0; i < 70; i++){
-			displayStops.add("SampleStop");
-			displayTimesOne.add("TimeOne");
-			displayTimesTwo.add("TimeTwo");
-			displayTimesThree.add("TimeThree");
-		}
+		Calendar cal = new GregorianCalendar();
+		cal.setTime((java.util.Date)(timeSpinner.getValue()));
+		String day = (new String[] {"saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday"})[cal.get(Calendar.DAY_OF_WEEK)];
+		Functions.Step[] path = Functions.findPath(dep.getSelectedValue().toString(), arr.getSelectedValue().toString(), cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE), day, conn);
 		
-		JPanel results = new JPanel(new GridBagLayout());
-		JScrollPane Scrolltastic = new JScrollPane(results);
-		
-		pane.removeAll();
-		Toolkit.getDefaultToolkit().beep();
-		
-		//Scrolltastic.add(pane);
-		
-		a.gridx = 0;
-		a.gridy = 0;
-		a.gridwidth = 1;
-		a.gridheight = 1;
-		a.fill = GridBagConstraints.NONE;
-		a.ipady = 0;
-		a.ipadx = 0;
-
-		for (int i = 0; i < displayStops.size(); i++)
+		if (path == null)
 		{
-			a.gridx = 0;
-			results.add(new JLabel(displayStops.get(i)), a);
-			a.gridx = 1;
-			results.add(new JLabel(displayTimesOne.get(i)), a);
-			a.gridx = 2;
-			results.add(new JLabel(displayTimesTwo.get(i)), a);
-			a.gridx = 3;
-			results.add(new JLabel(displayTimesThree.get(i)), a);
-			
-			a.gridy = i + 1;
+			JOptionPane.showMessageDialog(this, "Sorry, no route could be found at the given time!", "No Route Found", JOptionPane.ERROR_MESSAGE);
 		}
-		
-		pane.setLayout(new BorderLayout());
-		pane.add(Scrolltastic);
-		this.repaint();
-		setVisible(true);
+		else if (path.length == 1)
+		{
+			JOptionPane.showMessageDialog(this, "You're already there!", "Route Found", JOptionPane.INFORMATION_MESSAGE);
+		}
+		else
+		{
+			try
+			{
+				PreparedStatement stationName = conn.prepareStatement("select name from stations where id = ?;");
+				
+				// initial station
+				String message = "Take the " + path[1].sh + ":" + path[1].sm + " train from ";
+				stationName.setInt(1, path[0].id);
+				ResultSet rs = stationName.executeQuery();
+				while (rs.next())
+				{
+					message += rs.getString("name");
+				}
+				rs.close();
+				
+				// find any changes
+				for (int i = 2; i < path.length; i++)
+				{
+					if (path[i-1].dt == path[i].st)
+						continue;
+					
+					stationName.setInt(1, path[i-1].id);
+					rs = stationName.executeQuery();
+					while (rs.next())
+					{
+						message += " arriving at " + rs.getString("name");
+					}
+					rs.close();
+					message += " at " + path[i-1].dh + ":" + path[i-1].dm + ".\n";
+					
+					message += "Change to the " + path[i].sh + ":" + path[i].sm + " train";
+				}
+				
+				// final stop
+				stationName.setInt(1, path[path.length-1].id);
+				rs = stationName.executeQuery();
+				while (rs.next())
+				{
+					message += " arriving at " + rs.getString("name");
+				}
+				rs.close();
+				message += " at " + path[path.length-1].dh + ":" + path[path.length-1].dm + ".\n";
+				
+				JOptionPane.showMessageDialog(this, message, "Route Found", JOptionPane.INFORMATION_MESSAGE);
+			}
+			catch (Exception ex)
+			{
+				System.out.println(ex.getMessage());
+				ex.printStackTrace(System.out);
+				System.exit(0);
+			}
+		}
 	}
 
 	// Refresh stop lists whenever search terms change.
@@ -356,7 +382,6 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 		updateLists(e.getComponent());
 	}
   
-	// TODO better animation method
 	public static void waiting (int n)
 	{
 		long t0, t1;

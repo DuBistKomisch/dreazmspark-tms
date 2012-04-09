@@ -29,7 +29,7 @@ public class ParseTimetable
       conn = DriverManager.getConnection("jdbc:sqlite:ptv.db");
       Statement stat = conn.createStatement();
       stat.executeUpdate("create table if not exists stations (id integer primary key autoincrement, name string);");
-      stat.executeUpdate("create table if not exists connections (source integer references stations (id), destination integer references stations (id), source_time integer, destination_time, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, primary key (source, destination, source_time, destination_time, monday, tuesday, wednesday, thursday, friday, saturday, sunday) on conflict ignore);");
+      stat.executeUpdate("create table if not exists connections (source integer references stations (id), destination integer references stations (id), source_time integer, destination_time integer, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, primary key (source, destination, source_time, destination_time, monday, tuesday, wednesday, thursday, friday, saturday, sunday) on conflict ignore);");
     }
     catch (SQLException e)
     {
@@ -167,11 +167,22 @@ public class ParseTimetable
       {
         isProcessingStations = stack.size();
       }
-
-      // started processing a row
+      
+      /* WTF time:
+         for no apparent reason, the parser seems to skip the open and the close callbacks for just the div with id=ttBR_row_1 
+         i.e. the div containing the first row of the timetable
+         to work around this, we assume we're processing the first row as soon as we hit the containing div with id=ttBody
+         however, the stack size is now off by 1, so we have to set our finished processing trigger to one smaller
+         luckily this is the last thing we're processing so we don't have to worry about anything later
+         TODO better fix for this */
+      if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.ID, "ttBody"))
+      {
+        isProcessingTimetableRow = stack.size() - 1;
+        currentColumn = 0;
+      }
+      
       if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.CLASS, "ttBodyTP"))
       {
-        isProcessingTimetableRow = stack.size();
         currentColumn = 0;
       }
     }
@@ -338,7 +349,15 @@ public class ParseTimetable
         {
           time = Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
           if (tag == HTML.Tag.B)
-            time += 12 * 60;
+          {
+            if (time < 12 * 60)
+              time += 12 * 60;
+          }
+          else
+          {
+            if (time > 12 * 60)
+              time -= 12 * 60;
+          }
         }
 
         columns.get(currentColumn).add(time);

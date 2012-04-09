@@ -14,7 +14,7 @@ all: ${CLASSES}
 # how to make a .java into a .class
 ${CLASSES}: ${BIN}/%.class:${SRC}/%.java
 	@mkdir -p ${BIN}
-	${JC} -d ${BIN} ${SRC}/$*.java
+	${JC} ${JARGS} -d ${BIN} ${SRC}/$*.java
 
 # generate ptv.db
 db: all

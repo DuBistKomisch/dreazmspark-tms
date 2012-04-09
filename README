@@ -71,6 +71,7 @@ of time and days it occurs on. This format allows maximum flexibity when writing
 detailed queries. This format also prevents duplicates by ignoring connections
 with the same data, for example the Werribee timetable lists parts of the 
 Sydenham and Williamstown services which overlap with the Werribee line.
+Time is stored as the number of minutes since midnight at the start of the day.
 
 Using the Program
 =================
@@ -80,10 +81,10 @@ Eclipse
 
 Import the directory as a project (Eclipse should recognise the .project file).
 
-You may need to alter the Build Path configuration to select the right JRE you
-have installed on your particular system.
+IMPORTANT: You may need to alter the Build Path configuration to select the
+right JRE you have installed on your particular system.
 
-Since a pre-filled database is included, you can just run GUI.
+Since a pre-filled database is included, you can run GUI as a Java application.
 
 To generate the database from the .html timetables, delete ptv.db and then
 run ParseTimetable with content/tt as the only argument.
@@ -100,10 +101,13 @@ Simply running 'make db' won't add any new data.
 
 To confirm the database was made:
   make dump
-This will print our the stations table and a summary of the connections table.
+This will print out the stations table and a summary of the connections table.
 
 To actually run the program:
   make gui
+Enjoy the splash screen. The interface should be straight forward.
+Only one route is returned. To get another, increment the time so you miss
+that route and click "GO!" again.
 
 To remove compiled program files:
   make clean
@@ -120,3 +124,6 @@ Citations
 
 turtle.png was adapted from images available for free at:
 http://bilinick.blogspot.com.au/2010/05/touche-turtle-cartoon-photo.html
+
+uses the SQLite JDBC driver available for free at:
+http://www.zentus.com/sqlitejdbc/
