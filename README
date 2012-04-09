@@ -76,13 +76,24 @@ Time is stored as the number of minutes since midnight at the start of the day.
 Using the Program
 =================
 
+After the splash screen animation plays, the main interface is displayed.
+Typing in the text boxes above the station list searches.
+Currently, only one route is returned. To get another, increment the time so
+you miss that route and click "GO!" again. The route is also not yet optimal,
+but it will still find a valid route.
+
+Example data:
+
+Laverton to Melbourne Central at 13:20 Monday.
+Belgrave to Ringwood East at 12:00 Monday.
+
 Eclipse
 -------
 
-Import the directory as a project (Eclipse should recognise the .project file).
+Import the root directory as a project using File > Import > Existing Project.
 
-If you get any "blah blah missing" errors, it's just a classpath issue. Readd
-all the things under Build Path Configuration.
+If you get any "missing/not found" errors, it's just a classpath issue. Re-add
+the libraries under Build Path Configuration.
 
 Since a pre-filled database is included, you can run GUI as a Java application.
 
@@ -105,9 +116,6 @@ This will print out the stations table and a summary of the connections table.
 
 To actually run the program:
   make gui
-Enjoy the splash screen. The interface should be straight forward.
-Only one route is returned. To get another, increment the time so you miss
-that route and click "GO!" again.
 
 To remove compiled program files:
   make clean
