@@ -81,8 +81,8 @@ Eclipse
 
 Import the directory as a project (Eclipse should recognise the .project file).
 
-IMPORTANT: You may need to alter the Build Path configuration to select the
-right JRE you have installed on your particular system.
+If you get any "blah blah missing" errors, it's just a classpath issue. Readd
+all the things under Build Path Configuration.
 
 Since a pre-filled database is included, you can run GUI as a Java application.
 
