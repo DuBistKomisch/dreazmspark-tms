@@ -32,6 +32,8 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 	JTextField arrSearch = new JTextField(14);
 	JSpinner timeSpinner;	
 	JButton go;
+	
+	JCheckBox wheelchair = new JCheckBox("Wheelchair?");
 
 	JPanel pane = new JPanel(new GridBagLayout());
 	GridBagConstraints a = new GridBagConstraints(); //gridx, gridy, gridwidth, gridheight, fill, ipadx, ipady, insets, anchor
@@ -136,11 +138,11 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     	
     	// splash animation frame 2
     	a.insets = new Insets(0, 0, 0, 0);
-    	JLabel produced = new JLabel("<html><FONT COLOR=#00FFFF SIZE=30>PRODUCED BY:<br><br>Harry<br>Ashley<br>and Jake</FONT></html>");
+    	JLabel produced = new JLabel("<html><FONT COLOR=#00FFFF><FONT SIZE=30>PRODUCED BY:<br><br>Harry<br>Ashley<br>and Jake</FONT></FONT></html>");
     	pane.add(produced,a);
         
     	setVisible(true);
-    	for (int i = 0; i < 30; i++)
+    	for (int i = 0; i < 20; i++)
     	{
         	Toolkit.getDefaultToolkit().beep();
         	if (p == 0)
@@ -153,7 +155,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
         		p = 0;
         		pane.setBackground(Color.yellow);
         	}
-        	waiting(1);
+        	waiting(2);
         }
     	
     	pane.remove(produced);
@@ -162,7 +164,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     	// splash animation frame 3
     	a.gridx = 0;
    		a.gridy = 0;
-    	JLabel name = new JLabel("<html><CENTER><FONT COLOR=GREEN SIZE=80>TRANSPORT MANAGEMENT SYSTEM<br><br>PRO EDITION</FONT></CENTER></html>");
+    	JLabel name = new JLabel("<html><CENTER><FONT COLOR=GREEN><FONT SIZE=80>TRANSPORT MANAGEMENT SYSTEM<br><br>PRO EDITION</FONT></FONT></CENTER></html>");
     	pane.add(name, a);
     	
     	setVisible(true);
@@ -185,6 +187,94 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     	pane.remove(name);
     	this.repaint();
     	
+    	// splash animation frame 4
+    	a.gridx = 0;
+   		a.gridy = 0;
+    	JLabel canoe = new JLabel("<html><CENTER><FONT COLOR=GREEN SIZE=50>WARNING</FONT></CENTER></html>");
+    	pane.add(canoe, a);
+    	
+    	setVisible(true);
+    	for (int i = 0; i < 10; i++)
+    	{
+    		
+        	Toolkit.getDefaultToolkit().beep();
+        	if (p == 0)
+        	{
+        		p = 1;
+        		pane.setBackground(Color.blue);	
+        	}
+        	else
+        	{
+        		p = 0;
+        		pane.setBackground(Color.green);
+        	}
+        	waiting(2);
+        }
+    	
+    	pane.remove(canoe);
+    	this.repaint();
+    	
+    	a.gridx = 0;
+   		a.gridy = 0;
+    	JLabel canoe2 = new JLabel("<html><CENTER><FONT COLOR=ORANGE SIZE=50>DO NOT USE THIS PRODUCT IF YOU SUFFER FROM</FONT></CENTER></html>");
+    	pane.add(canoe2, a);
+    	
+    	setVisible(true);
+    	for (int i = 0; i < 8; i++)
+    	{
+    		
+        	Toolkit.getDefaultToolkit().beep();
+        	if (p == 0)
+        	{
+        		p = 1;
+        		pane.setBackground(Color.blue);	
+        	}
+        	else
+        	{
+        		p = 0;
+        		pane.setBackground(Color.green);
+        	}
+        	waiting(3);
+        }
+    	
+    	pane.remove(canoe2);
+    	this.repaint();
+    	
+    	
+    	a.gridx = 0;
+   		a.gridy = 0;
+   		a.fill = GridBagConstraints.BOTH;
+    	JLabel canoe3 = new JLabel("<html><CENTER><FONT COLOR=RED>EPILEPSY</FONT></CENTER></html>");
+    	
+
+    	pane.add(canoe3, a);
+    	
+    	setVisible(true);
+    	for (int i = 0; i < 80; i++)
+    	{
+    		
+        	Toolkit.getDefaultToolkit().beep();
+        	if (p == 0)
+        	{
+        		p = 1;
+        		pane.setBackground(Color.black);
+        		canoe3.setFont(new Font("Serif", Font.PLAIN, 70));
+        	}
+        	else
+        	{
+        		p = 0;
+        		pane.setBackground(Color.white);
+        		canoe3.setFont(new Font("Arial", Font.BOLD, 200));
+        	}
+        	waiting(1);
+        }
+    	
+    	pane.remove(canoe3);
+    	this.repaint();
+    	
+    	
+    	
+    	
     	// actual application
     	pane.setBackground(Color.yellow);
 		
@@ -202,6 +292,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 		a.gridx = 2;
 		pane.add(new JLabel("Day & Time"), a);
 		
+		
 		a.insets = new Insets(0,50,0,50);
 		a.gridx = 0;
 		a.gridy = 1;
@@ -211,11 +302,14 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 		a.gridx = 2;
 		pane.add(timeSpinner, a);
 		
+		
 		a.gridx = 0;
 		a.gridy = 2;
 		pane.add(depList, a);
 		a.gridx = 1;
 		pane.add(arrList, a);
+		a.gridx = 2;
+		pane.add(wheelchair,a);
 		
 		a.gridy = 3;
 		a.gridx = 0;
