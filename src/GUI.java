@@ -60,7 +60,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
   {
     // set up window
     super("Dreazmspark Transport Management Solutions");
-    setSize(1000,600);
+    setSize(1400,800);
     setLocationRelativeTo(null);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     

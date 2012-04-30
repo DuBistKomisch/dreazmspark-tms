@@ -11,9 +11,10 @@ import javax.swing.text.html.parser.*;
 public class ParseTimetable
 {
   static Connection conn;
+  static String mode;
 
   /**
-   * @param args Command line arguments: file or directory to parse
+   * @param args Command line arguments: file or directory to parse, and mode being "train" or "bus"
    */
   public static void main (String args[])
   {
@@ -47,9 +48,10 @@ public class ParseTimetable
     // check filename was passed
     if (args.length < 1)
     {
-      System.out.println("syntax: java ParseTimetable <file>");
+      System.out.println("syntax: java ParseTimetable <file> <mode>");
       System.exit(0);
     }
+    mode = args.length > 1 ? args[1] : "train";
 
     File files[] = {};
     try
@@ -217,7 +219,7 @@ public class ParseTimetable
         currentColumn = 0;
       }
       
-      if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.CLASS, "ttBodyTP"))
+      if (tag == HTML.Tag.DIV && (a.containsAttribute(HTML.Attribute.CLASS, "ttBodyTP") || a.containsAttribute(HTML.Attribute.CLASS, "ttBodyNTP")))
       {
         currentColumn = 0;
       }
@@ -297,7 +299,16 @@ public class ParseTimetable
       // found a station
       if (isProcessingStations != -1 && tag == HTML.Tag.A)
       {
-        String station = strData.substring(0, strData.indexOf(" Station"));
+        int index = -1;
+        if (mode.equals("train"))
+          index = strData.indexOf(" Station");
+        else
+        {
+          index = strData.indexOf(" Railway");
+          if (index == -1)
+            index = strData.indexOf(" (");
+        }
+        String station = strData.substring(0, index);
 
         try
         {

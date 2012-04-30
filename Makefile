@@ -20,8 +20,8 @@ ${CLASSES}: ${BIN}/%.class:${SRC}/%.java
 
 # generate ptv.db
 db: all
-	${JX} ${JARGS} ParseTimetable content/tt/train
-	${JX} ${JARGS} ParseTimetable content/tt/bus
+	${JX} ${JARGS} ParseTimetable content/tt/train train
+	${JX} ${JARGS} ParseTimetable content/tt/bus bus
 
 # dump database info
 dump: all

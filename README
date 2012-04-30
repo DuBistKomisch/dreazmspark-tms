@@ -87,7 +87,10 @@ Example data:
 Laverton to Melbourne Central at 13:20 Monday. (1 change, 1 result)
 Belgrave to Ringwood East at 12:00 Saturday. (3 changes, 1 result)
 Essendon to Huntingdale at 07:00 Thursday. (1 change, 3 results)
-Hoppers Crossing to Werribee at 12:00 Friday. (1 change, 3 results)
+Hoppers Crossing to Werribee Plaze Shopping Centre/Heaths Rd at 12:00 Friday. (1 change, 3 results)
+
+The programs labels every route as a "train" at the moment, even if it's a bus.
+If the GUI seems to be messed up, try resizing the window larger.
 
 Eclipse
 -------
