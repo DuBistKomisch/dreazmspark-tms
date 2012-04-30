@@ -32,7 +32,8 @@ lib/         - .jar libraries used by the program
 src/         - .java files
 content/     - data used at runtime
   tt/        - raw .html timetables from http://ptv.vic.gov.au/timetables/
-               with names of the form <source>_<dest>_<days>.html
+    train/   - names of the form <source>_<dest>_<days>.html
+    bus/     - names of the form <line>_<dest>_<days>.html
   turtle.png - an image of a turtle
 .classpath   - eclipse classpath configuration
 .project     - eclipse project configuration
@@ -65,6 +66,7 @@ connections
 *friday boolean
 *saturday boolean
 *sunday boolean
+accessible boolean
 
 Each row represents a single step between stations at any particular combination
 of time and days it occurs on. This format allows maximum flexibity when writing
@@ -78,14 +80,14 @@ Using the Program
 
 After the splash screen animation plays, the main interface is displayed.
 Typing in the text boxes above the station list searches.
-Currently, only one route is returned. To get another, increment the time so
-you miss that route and click "GO!" again. The route is also not yet optimal,
-but it will still find a valid route.
+Select additional options and then press "GO!".
 
 Example data:
 
-Laverton to Melbourne Central at 13:20 Monday.
-Belgrave to Ringwood East at 12:00 Monday.
+Laverton to Melbourne Central at 13:20 Monday. (1 change, 1 result)
+Belgrave to Ringwood East at 12:00 Saturday. (3 changes, 1 result)
+Essendon to Huntingdale at 07:00 Thursday. (1 change, 3 results)
+Hoppers Crossing to Werribee at 12:00 Friday. (1 change, 3 results)
 
 Eclipse
 -------
@@ -98,13 +100,16 @@ the libraries under Build Path Configuration.
 Since a pre-filled database is included, you can run GUI as a Java application.
 
 To generate the database from the .html timetables, delete ptv.db and then
-run ParseTimetable with content/tt as the only argument.
+run ParseTimetable with content/tt/train as the only argument.
 
 Make
 ----
 
 To compile the program files:
   make
+
+To generate the javadocs:
+  make doc
 
 To parse the timetables and create the database:
   make cleandb && make db
@@ -117,7 +122,7 @@ This will print out the stations table and a summary of the connections table.
 To actually run the program:
   make gui
 
-To remove compiled program files:
+To remove compiled program files and javadocs:
   make clean
 
 Version Control System

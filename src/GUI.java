@@ -9,6 +9,9 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
+/**
+ * The class the user runs to use the program.
+ */
 public class GUI extends JFrame implements ActionListener, KeyListener
 {
   Connection conn;
@@ -42,11 +45,17 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 
   int delay = 100;
   
+  /**
+   * Starts program.
+   */
   public static void main(String args[]) throws Exception
   {
     new GUI();
   }
   
+  /**
+   * Instance of GUI which creates the Swing interface and does the splash animation.
+   */
   public GUI () throws Exception
   {
     // set up window
@@ -342,7 +351,13 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     setVisible(true);
   }
 
-  // on pressing GO!
+  /**
+   * Callback for pressing GO.
+   *
+   * Passes GUI input parameters to Functions.findPath() and parses into a human-readable message.
+   *
+   * Presents an error message if no path is found or already at destination.
+   */
   public void actionPerformed(ActionEvent e)
   {
     Calendar cal = new GregorianCalendar();
@@ -429,7 +444,9 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
   }
 
-  // Refresh stop lists whenever search terms change.
+  /**
+   * Refreshes stop lists whenever search terms change.
+   */
   public void updateLists(Component c) {
     Toolkit.getDefaultToolkit().beep();
     if (c == depSearch)
@@ -491,21 +508,33 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     }
   }
 
+  /**
+   * Callback for user typing in search boxes.
+   */
   public void keyPressed(KeyEvent e)
   {
     updateLists(e.getComponent());
   }
       
+  /**
+   * Callback for user typing in search boxes.
+   */
   public void keyReleased(KeyEvent e)
   {
     updateLists(e.getComponent());
   }
 
+  /**
+   * Callback for user typing in search boxes.
+   */
   public void keyTyped(KeyEvent e)
   {  
     updateLists(e.getComponent());
   }
   
+  /**
+   * Terrible animation method, quick and easy though.
+   */
   public void waiting (int n)
   {
     long t0, t1;
@@ -517,7 +546,12 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     while ((t1 - t0) < (n * delay));
   }
 
-  class Skipper implements KeyListener
+  /**
+   * Callbacks for skipping intro animation.
+   *
+   * Hit any key to skip it!
+   */
+  public class Skipper implements KeyListener
   {
     public void keyPressed (KeyEvent e)
     {

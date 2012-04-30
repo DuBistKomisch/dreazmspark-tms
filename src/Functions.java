@@ -85,7 +85,7 @@ public class Functions
 	 */
   
   
-  private static boolean recursiveFunction(int station, int destination, int time, Connection conn, int changesLeft, boolean initial) throws SQLException
+  public static boolean recursiveFunction(int station, int destination, int time, Connection conn, int changesLeft, boolean initial) throws SQLException
   {
     // success condition
     if (station == destination)
@@ -159,7 +159,7 @@ public class Functions
 	 @param dt the time of departure
 	 @param st The time in minutes that the result must be later than
 	  */
-    Step (int id, int dt, int st)
+    public Step (int id, int dt, int st)
     {
       this.id = id;
       this.dt = dt;

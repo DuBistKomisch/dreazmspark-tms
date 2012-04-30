@@ -1,5 +1,8 @@
 import java.sql.*;
 
+/**
+ * Prints statistics about the database so you know the parser worked.
+ */
 public class DumpDatabase
 {
   public static void main (String args[])

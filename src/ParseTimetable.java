@@ -5,10 +5,16 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.text.html.parser.*;
 
+/**
+ * Parses HTML timetables into an sqlite db.
+ */
 public class ParseTimetable
 {
   static Connection conn;
 
+  /**
+   * @param args Command line arguments: file or directory to parse
+   */
   public static void main (String args[])
   {
     // import JDBC SQLite driver
@@ -93,7 +99,10 @@ public class ParseTimetable
     }
   }
 
-  static class HTMLFileFilter implements FileFilter
+  /**
+   * Filters only .html files when a directory is passed.
+   */
+  public static class HTMLFileFilter implements FileFilter
   {
     public boolean accept (File f)
     {
@@ -102,7 +111,10 @@ public class ParseTimetable
     }
   }
 
-  static class Callback extends HTMLEditorKit.ParserCallback
+  /**
+   * Callbacks to process the HTML.
+   */
+  public static class Callback extends HTMLEditorKit.ParserCallback
   {
     // keeps track of open tags
     Stack<HTML.Tag> stack = new Stack<HTML.Tag>();
@@ -124,9 +136,10 @@ public class ParseTimetable
     int isProcessingAccessible = -1;
     ArrayList<Boolean> accessible = new ArrayList<Boolean>();
 
-    // checks whether an attribute actually exists whatsoever, even if it has no value
-    // e.g. "selected" in HTML such as <option value="abc" selected>abc</option>
-    static boolean isDefinedAtAll (AttributeSet a, Object name)
+    /** checks whether an attribute actually exists whatsoever, even if it has no value
+     * e.g. "selected" in HTML such as <option value="abc" selected>abc</option>
+     */
+    public static boolean isDefinedAtAll (AttributeSet a, Object name)
     {
       for (Enumeration<?> e = a.getAttributeNames(); e.hasMoreElements(); )
         if (e.nextElement() == name)
@@ -134,6 +147,11 @@ public class ParseTimetable
       return false;
     }
 
+    /**
+     * Handles opening a tag.
+     *
+     * Used to keep track of which section of the file we're in.
+     */
     public void handleStartTag (HTML.Tag tag, MutableAttributeSet a, int pos)
     {
       stack.push(tag);
@@ -205,6 +223,11 @@ public class ParseTimetable
       }
     }
 
+    /**
+     * Handles tags of the form &lt;tag attr="foo"/&gt;. 
+     *
+     * Only used for detecting accessiblity images.
+     */
     public void handleSimpleTag (HTML.Tag tag, MutableAttributeSet a, int pos)
     {
       // found accessible
@@ -214,6 +237,11 @@ public class ParseTimetable
       }
     }
 
+    /**
+     * Handles close tags.
+     *
+     * Used to keep track of where we are.
+     */
     public void handleEndTag (HTML.Tag tag, int pos)
     {
       stack.pop();
@@ -243,6 +271,11 @@ public class ParseTimetable
       }
     }
 
+    /**
+     * Handles actual content.
+     *
+     * Most parsing is done here.
+     */
     public void handleText (char data[], int pos)
     {
       HTML.Tag tag = stack.peek();
@@ -328,7 +361,9 @@ public class ParseTimetable
       }
     }
 
-    // done parsing, write to database
+    /**
+     * Handles done parsing, writes everything to database.
+     */
     public void handleEndOfLineString (String eol)
     {
       // hooray for prepared statements
