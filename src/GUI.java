@@ -34,7 +34,8 @@ public class GUI extends JFrame implements ActionListener, KeyListener
   JButton go;
   
   JCheckBox wheelchair = new JCheckBox("Wheelchair?");
-  JSpinner changesSpinner = new JSpinner(new SpinnerNumberModel(3, 0, 9, 1)); // default min max step
+  JSpinner changesSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 9, 1)); // default min max step
+  JSpinner resultsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 3, 1)); // default min max step
 
   JPanel pane = new JPanel(new GridBagLayout());
   GridBagConstraints a = new GridBagConstraints(); //gridx, gridy, gridwidth, gridheight, fill, ipadx, ipady, insets, anchor
@@ -301,7 +302,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     
     a.gridx = 0;
     a.gridy = 2;
-    a.gridheight = 4;
+    a.gridheight = 5;
     pane.add(depList, a);
     a.gridx = 1;
     pane.add(arrList, a);
@@ -318,8 +319,13 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     changes.add(new JLabel("Max Changes"), BorderLayout.WEST);
     changes.add(changesSpinner, BorderLayout.EAST);
     pane.add(changes, a);
+    a.gridy = 5;
+    JPanel results = new JPanel();
+    results.add(new JLabel("No. Results"), BorderLayout.WEST);
+    results.add(resultsSpinner, BorderLayout.EAST);
+    pane.add(results, a);
     
-    a.gridy = 6;
+    a.gridy = 7;
     a.gridx = 0;
     a.gridwidth = 4;
     a.gridheight = 2;
@@ -341,70 +347,86 @@ public class GUI extends JFrame implements ActionListener, KeyListener
   {
     Calendar cal = new GregorianCalendar();
     cal.setTime((java.util.Date)(timeSpinner.getValue()));
+    int time = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
     String day = (new String[] {"saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"})[cal.get(Calendar.DAY_OF_WEEK)]; // 1-indexed -_-
-    Functions.Step[] path = Functions.findPath(dep.getSelectedValue().toString(), arr.getSelectedValue().toString(), cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE), day, conn, wheelchair.isSelected(), ((Integer)(changesSpinner.getValue())).intValue());
+    String message = "", title = "";
+
+    for (int result = 0; result < ((Integer)(resultsSpinner.getValue())).intValue(); result++) {
+      Functions.Step[] path = Functions.findPath(dep.getSelectedValue().toString(), arr.getSelectedValue().toString(), time, day, conn, wheelchair.isSelected(), ((Integer)(changesSpinner.getValue())).intValue());
     
-    if (path == null)
-    {
-      JOptionPane.showMessageDialog(this, "Sorry, no route could be found!", "No Route Found", JOptionPane.ERROR_MESSAGE);
-    }
-    else if (path.length == 1)
-    {
-      JOptionPane.showMessageDialog(this, "You're already there!", "Route Found", JOptionPane.INFORMATION_MESSAGE);
-    }
-    else
-    {
-      try
+      if (path == null)
       {
-        PreparedStatement stationName = conn.prepareStatement("select name from stations where id = ?;");
-        
-        // initial station
-        String message = "Take the " + path[1].sh + ":" + path[1].sm + " train from ";
-        stationName.setInt(1, path[0].id);
-        ResultSet rs = stationName.executeQuery();
-        while (rs.next())
+        if (message.length() == 0)
         {
-          message += rs.getString("name");
+          title = "No Route Found";
+          message = "Sorry, no route could be found!\n...try increasing Max Changes?";
         }
-        rs.close();
-        
-        // find any changes
-        for (int i = 2; i < path.length; i++)
+        break;
+      }
+      else if (path.length == 1)
+      {
+        title = "Route Found";
+        message = "You're already there!";
+        break;
+      }
+      else
+      {
+        try
         {
-          if (path[i-1].dt == path[i].st)
-            continue;
+          PreparedStatement stationName = conn.prepareStatement("select name from stations where id = ?;");
           
-          stationName.setInt(1, path[i-1].id);
+          // initial station
+          title = "Route Found";
+          if (result > 0)
+            message += "\n";
+          message += "Take the " + path[1].sh + ":" + path[1].sm + " train from ";
+          stationName.setInt(1, path[0].id);
+          time = path[1].st + 1;
+          ResultSet rs = stationName.executeQuery();
+          while (rs.next())
+          {
+            message += rs.getString("name");
+          }
+          rs.close();
+          
+          // find any changes
+          for (int i = 2; i < path.length; i++)
+          {
+            if (path[i-1].dt == path[i].st)
+              continue;
+            
+            stationName.setInt(1, path[i-1].id);
+            rs = stationName.executeQuery();
+            while (rs.next())
+            {
+              message += " arriving at " + rs.getString("name");
+            }
+            rs.close();
+            message += " at " + path[i-1].dh + ":" + path[i-1].dm + ".\n";
+            
+            message += "Change to the " + path[i].sh + ":" + path[i].sm + " train";
+          }
+          
+          // final stop
+          stationName.setInt(1, path[path.length-1].id);
           rs = stationName.executeQuery();
           while (rs.next())
           {
             message += " arriving at " + rs.getString("name");
           }
           rs.close();
-          message += " at " + path[i-1].dh + ":" + path[i-1].dm + ".\n";
-          
-          message += "Change to the " + path[i].sh + ":" + path[i].sm + " train";
+          message += " at " + path[path.length-1].dh + ":" + path[path.length-1].dm + ".\n";
         }
-        
-        // final stop
-        stationName.setInt(1, path[path.length-1].id);
-        rs = stationName.executeQuery();
-        while (rs.next())
+        catch (Exception ex)
         {
-          message += " arriving at " + rs.getString("name");
+          System.out.println(ex.getMessage());
+          ex.printStackTrace(System.out);
+          System.exit(0);
         }
-        rs.close();
-        message += " at " + path[path.length-1].dh + ":" + path[path.length-1].dm + ".\n";
-        
-        JOptionPane.showMessageDialog(this, message, "Route Found", JOptionPane.INFORMATION_MESSAGE);
-      }
-      catch (Exception ex)
-      {
-        System.out.println(ex.getMessage());
-        ex.printStackTrace(System.out);
-        System.exit(0);
       }
     }
+
+    JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
   }
 
   // Refresh stop lists whenever search terms change.

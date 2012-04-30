@@ -36,7 +36,8 @@ public class Functions
       // gets all destinations reachable from a source after a certain time
       connectedQuery = conn.prepareStatement("select destination from connections where source = ? and source_time >= ? and " + day + " = 1 " + (accessible ? "and accessible = 1 " : "") + "order by source_time asc, destination_time asc;");
       // gets soonest connection between source and destination after a certain time
-      timesQuery = conn.prepareStatement("select source_time, destination_time from connections where source = ? and destination = ? and source_time >= ? and " + day + " = 1 " + (accessible ? "and accessible = 1 " : "") + "order by source_time asc, destination_time asc limit 1;");
+      // only takes from next 30 minutes, hopefully reasonable enough
+      timesQuery = conn.prepareStatement("select source_time, destination_time from connections where source = ? and destination = ? and source_time >= ? and source_time <= ? + 30 and " + day + " = 1 " + (accessible ? "and accessible = 1 " : "") + "order by source_time asc, destination_time asc limit 2;");
       visited.clear();
       visited.push(new Step(departing, time, time));
       if (recursiveFunction(departing, destination, time, conn, maxChanges, true))
@@ -86,6 +87,7 @@ public class Functions
       timesQuery.setInt(1, station);
       timesQuery.setInt(2, d);
       timesQuery.setInt(3, time);
+      timesQuery.setInt(4, time);
       rs = timesQuery.executeQuery();
       while (rs.next())
       {
