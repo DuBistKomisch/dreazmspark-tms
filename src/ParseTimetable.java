@@ -29,7 +29,7 @@ public class ParseTimetable
       conn = DriverManager.getConnection("jdbc:sqlite:ptv.db");
       Statement stat = conn.createStatement();
       stat.executeUpdate("create table if not exists stations (id integer primary key autoincrement, name string);");
-      stat.executeUpdate("create table if not exists connections (source integer references stations (id), destination integer references stations (id), source_time integer, destination_time integer, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, primary key (source, destination, source_time, destination_time, monday, tuesday, wednesday, thursday, friday, saturday, sunday) on conflict ignore);");
+      stat.executeUpdate("create table if not exists connections (source integer references stations (id), destination integer references stations (id), source_time integer, destination_time integer, monday boolean, tuesday boolean, wednesday boolean, thursday boolean, friday boolean, saturday boolean, sunday boolean, accessible boolean, primary key (source, destination, source_time, destination_time, monday, tuesday, wednesday, thursday, friday, saturday, sunday) on conflict ignore);");
     }
     catch (SQLException e)
     {
@@ -120,6 +120,12 @@ public class ParseTimetable
     int isProcessingFridayOnly = -1;
     ArrayList<Integer> fridayOnly = new ArrayList<Integer>();
 
+    // accessible
+    int isProcessingAccessible = -1;
+    ArrayList<Boolean> accessible = new ArrayList<Boolean>();
+
+    // checks whether an attribute actually exists whatsoever, even if it has no value
+    // e.g. "selected" in HTML such as <option value="abc" selected>abc</option>
     static boolean isDefinedAtAll (AttributeSet a, Object name)
     {
       for (Enumeration<?> e = a.getAttributeNames(); e.hasMoreElements(); )
@@ -131,6 +137,18 @@ public class ParseTimetable
     public void handleStartTag (HTML.Tag tag, MutableAttributeSet a, int pos)
     {
       stack.push(tag);
+
+      // pad accessible
+      if (tag == HTML.Tag.DIV && isProcessingAccessible > -1)
+      {
+        accessible.add(false);
+      }
+
+      // pad friday only
+      if (tag == HTML.Tag.DIV && isProcessingFridayOnly > -1)
+      {
+        fridayOnly.add(0);
+      }
 
       // weekdays
       if (tag == HTML.Tag.OPTION && a.containsAttribute(HTML.Attribute.VALUE, "T0") && isDefinedAtAll(a, HTML.Attribute.SELECTED))
@@ -150,16 +168,16 @@ public class ParseTimetable
         whichDay = 4;
       }
 
+      // started processing accessible header
+      if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.CLASS, "ttHeader") && a.isDefined(HTML.Attribute.STYLE))
+      {
+        isProcessingAccessible = stack.size();
+      }
+
       // started processing friday only header
       if (tag == HTML.Tag.DIV && a.containsAttribute(HTML.Attribute.CLASS, "ttHeader") && !a.isDefined(HTML.Attribute.STYLE) && isProcessingFridayOnly == -1)
       {
         isProcessingFridayOnly = stack.size();
-      }
-
-      // pad friday only
-      if (tag == HTML.Tag.DIV && isProcessingFridayOnly > -1)
-      {
-        fridayOnly.add(0);
       }
 
       // started processing stations
@@ -187,9 +205,24 @@ public class ParseTimetable
       }
     }
 
+    public void handleSimpleTag (HTML.Tag tag, MutableAttributeSet a, int pos)
+    {
+      // found accessible
+      if (tag == HTML.Tag.IMG && isProcessingAccessible > -1)
+      {
+        accessible.set(accessible.size() - 1, true);
+      }
+    }
+
     public void handleEndTag (HTML.Tag tag, int pos)
     {
       stack.pop();
+
+      // finished processing accesible header
+      if (stack.size() < isProcessingAccessible)
+      {
+        isProcessingAccessible = -1;
+      }
 
       // finished processing friday only header
       if (stack.size() < isProcessingFridayOnly)
@@ -207,77 +240,6 @@ public class ParseTimetable
       if (stack.size() < isProcessingTimetableRow)
       {
         isProcessingTimetableRow = -1;
-      }
-
-      // done reading data, write it to the database
-      if (tag == HTML.Tag.HTML)
-      {
-        // hooray for prepared statements
-        PreparedStatement prep = null;
-        try
-        {
-          prep = conn.prepareStatement("insert into connections values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-        }
-        catch (Exception e)
-        {
-          System.err.println(e.getMessage());
-          e.printStackTrace(System.err);
-          return;
-        }
-
-        // process each column
-        for (int c = 0; c < columns.size(); c++)
-        {
-          ArrayList<Integer> column = columns.get(c);
-          int prevStation = -1;
-          int prevTime = -1;
-
-          // process each station
-          for (int row = 0; row < column.size(); row++)
-          {
-            // if the train stops here
-            if (column.get(row) > -1)
-            {
-              // if there was a previous station and it's not a "waiting at the station" step
-              if (prevStation != -1 && prevStation != stations.get(row))
-              {
-                try
-                {
-                  prep.setInt(1, prevStation);
-                  prep.setInt(2, stations.get(row));
-                  prep.setInt(3, prevTime);
-                  prep.setInt(4, column.get(row));
-                  for (int i = 0; i < 7; i++)
-                    prep.setBoolean(5 + i, days[whichDay == 0 ? fridayOnly.get(c) : whichDay][i] != 0);
-                  prep.addBatch();
-                }
-                catch (Exception e)
-                {
-                  System.err.println(e.getMessage());
-                  e.printStackTrace(System.err);
-                }
-              }
-              
-              prevStation = stations.get(row);
-              prevTime = column.get(row);
-            }
-          }
-        }
-
-        // wait to commit all updates at once, WAY faster
-        try
-        {
-          conn.setAutoCommit(false);
-          prep.executeBatch();
-          conn.commit();
-          conn.setAutoCommit(true);
-          prep.close();
-        }
-        catch (Exception e)
-        {
-          System.err.println(e.getMessage());
-          e.printStackTrace(System.err);
-        }
       }
     }
 
@@ -364,6 +326,92 @@ public class ParseTimetable
 
         currentColumn++;
       }
+    }
+
+    // done parsing, write to database
+    public void handleEndOfLineString (String eol)
+    {
+      // hooray for prepared statements
+      PreparedStatement prep = null;
+      try
+      {
+        prep = conn.prepareStatement("insert into connections values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+      }
+      catch (Exception e)
+      {
+        System.err.println(e.getMessage());
+        e.printStackTrace(System.err);
+        return;
+      }
+
+      // process each column
+      for (int c = 0; c < columns.size(); c++)
+      {
+        ArrayList<Integer> column = columns.get(c);
+        int prevStation = -1;
+        int prevTime = -1;
+
+        // process each station
+        for (int row = 0; row < column.size(); row++)
+        {
+          // if the train stops here
+          if (column.get(row) > -1)
+          {
+            // if there was a previous station and it's not a "waiting at the station" step
+            if (prevStation != -1 && prevStation != stations.get(row))
+            {
+              try
+              {
+                prep.setInt(1, prevStation);
+                prep.setInt(2, stations.get(row));
+                prep.setInt(3, prevTime);
+                prep.setInt(4, column.get(row));
+                for (int i = 0; i < 7; i++)
+                  prep.setBoolean(5 + i, days[whichDay == 0 ? fridayOnly.get(c) : whichDay][i] != 0);
+                prep.setBoolean(12, accessible.get(c));
+                prep.addBatch();
+              }
+              catch (Exception e)
+              {
+                System.err.println(e.getMessage());
+                e.printStackTrace(System.err);
+              }
+            }
+            
+            prevStation = stations.get(row);
+            prevTime = column.get(row);
+          }
+        }
+      }
+
+      // wait to commit all updates at once, WAY faster
+      int updateCount[] = {};
+      try
+      {
+        conn.setAutoCommit(false);
+        updateCount = prep.executeBatch();
+        conn.commit();
+        conn.setAutoCommit(true);
+        prep.close();
+      }
+      catch (Exception e)
+      {
+        System.err.println(e.getMessage());
+        e.printStackTrace(System.err);
+      }
+
+      // print stats
+      int inserts = 0, duplicates = 0;
+      for (int i = 0; i < updateCount.length; i++)
+      {
+        if (updateCount[i] > 0)
+          inserts++;
+        else if (updateCount[i] == 0)
+          duplicates++;
+        else
+          System.out.println("???");
+      }
+      System.out.printf("%d rows, %d columns, %d inserts, %d duplicates\n", stations.size(), columns.size(), inserts, duplicates);
     }
   }
 }

@@ -333,7 +333,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
 	{
 		Calendar cal = new GregorianCalendar();
 		cal.setTime((java.util.Date)(timeSpinner.getValue()));
-		String day = (new String[] {"saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday"})[cal.get(Calendar.DAY_OF_WEEK)];
+		String day = (new String[] {"saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"})[cal.get(Calendar.DAY_OF_WEEK)]; // 1-indexed -_-
 		Functions.Step[] path = Functions.findPath(dep.getSelectedValue().toString(), arr.getSelectedValue().toString(), cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE), day, conn);
 		
 		if (path == null)

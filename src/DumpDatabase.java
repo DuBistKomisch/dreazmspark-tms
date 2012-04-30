@@ -40,17 +40,37 @@ public class DumpDatabase
       String days[] = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
       System.out.println("connections");
       System.out.println("-----------");
-      System.out.println("day count");
-      System.out.println("--- -----");
+      System.out.println("day       count   accessible");
+      System.out.println("--------- ------- ----------");
       for (int i = 0; i < days.length; i++)
       {
         rs = stat.executeQuery("select count(*) from connections WHERE " + days[i] + " = 1");
+        int total = 0;
         while (rs.next())
         {
-          System.out.printf("%s %d\n", days[i], rs.getInt("count(*)"));
+          total = rs.getInt("count(*)");
+        }
+        rs.close();
+        rs = stat.executeQuery("select count(*) from connections WHERE " + days[i] + " = 1 and accessible = 1");
+        while (rs.next())
+        {
+          System.out.printf("%-9s %-7d %6.2f%%\n", days[i], total, 100.0 * rs.getInt("count(*)") / total);
         }
         rs.close();
       }
+      rs = stat.executeQuery("select count(*) from connections");
+      int total = 0;
+      while (rs.next())
+      {
+        total = rs.getInt("count(*)");
+      }
+      rs.close();
+      rs = stat.executeQuery("select count(*) from connections where accessible = 1");
+      while (rs.next())
+      {
+        System.out.printf("total     %-7d %6.2f%%\n", total, 100.0 * rs.getInt("count(*)") / total);
+      }
+      rs.close();
       System.out.println();
     }
     catch (SQLException e)
