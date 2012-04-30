@@ -8,7 +8,7 @@ public class Functions
   static PreparedStatement timesQuery;
   
         // TODO use Dijkstra's algorithm to find best path, not just soonest option at each step
-  public static Step[] findPath(String startingID, String endingID, int time, String day, Connection conn, boolean accessible)
+  public static Step[] findPath(String startingID, String endingID, int time, String day, Connection conn, boolean accessible, int maxChanges)
   {
     // convert strings to ints
     int departing, destination;
@@ -39,7 +39,7 @@ public class Functions
       timesQuery = conn.prepareStatement("select source_time, destination_time from connections where source = ? and destination = ? and source_time >= ? and " + day + " = 1 " + (accessible ? "and accessible = 1 " : "") + "order by source_time asc, destination_time asc limit 1;");
       visited.clear();
       visited.push(new Step(departing, time, time));
-      if (recursiveFunction(departing, destination, time, conn))
+      if (recursiveFunction(departing, destination, time, conn, maxChanges, true))
       {
         return visited.toArray(new Step[] {});
       }
@@ -54,7 +54,7 @@ public class Functions
     return null;
   }
 
-  private static boolean recursiveFunction(int station, int destination, int time, Connection conn) throws SQLException
+  private static boolean recursiveFunction(int station, int destination, int time, Connection conn, int changesLeft, boolean initial) throws SQLException
   {
     // success condition
     if (station == destination)
@@ -80,7 +80,7 @@ public class Functions
           invalid = true;
       if (invalid)
         continue;
-      
+
       // get next few times
       ArrayList<Integer[]> times = new ArrayList<Integer[]>();
       timesQuery.setInt(1, station);
@@ -96,15 +96,20 @@ public class Functions
       // try this path
       for (Integer[] t : times)
       {
+        // check if change
+        boolean change = time < t[0] && !initial;
+        if (change && changesLeft == 0)
+          continue;
+
         visited.push(new Step(d, t[1], t[0]));
-        if (recursiveFunction(d, destination, t[1], conn))
+        if (recursiveFunction(d, destination, t[1], conn, changesLeft - (change ? 1 : 0), false))
           return true;
         visited.pop();
       }
     }
     
     return false;
-        }
+  }
   
   public static class Step
   {

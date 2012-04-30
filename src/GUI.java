@@ -34,6 +34,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
   JButton go;
   
   JCheckBox wheelchair = new JCheckBox("Wheelchair?");
+  JSpinner changesSpinner = new JSpinner(new SpinnerNumberModel(3, 0, 9, 1)); // default min max step
 
   JPanel pane = new JPanel(new GridBagLayout());
   GridBagConstraints a = new GridBagConstraints(); //gridx, gridy, gridwidth, gridheight, fill, ipadx, ipady, insets, anchor
@@ -289,7 +290,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     a.gridx = 2;
     pane.add(new JLabel("Day & Time"), a);
     
-    a.insets = new Insets(0,50,0,50);
+    a.insets = new Insets(0, 50, 0, 50);
     a.gridx = 0;
     a.gridy = 1;
     pane.add(depSearch, a);
@@ -300,13 +301,25 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     
     a.gridx = 0;
     a.gridy = 2;
+    a.gridheight = 4;
     pane.add(depList, a);
     a.gridx = 1;
     pane.add(arrList, a);
+
+    a.insets = new Insets(20, 50, 20, 50);
     a.gridx = 2;
-    pane.add(wheelchair,a);
-    
+    a.gridheight = 1;
+    pane.add(new JLabel("Options"), a);
+    a.insets = new Insets(0, 50, 0, 50);
     a.gridy = 3;
+    pane.add(wheelchair,a);
+    a.gridy = 4;
+    JPanel changes = new JPanel();
+    changes.add(new JLabel("Max Changes"), BorderLayout.WEST);
+    changes.add(changesSpinner, BorderLayout.EAST);
+    pane.add(changes, a);
+    
+    a.gridy = 6;
     a.gridx = 0;
     a.gridwidth = 4;
     a.gridheight = 2;
@@ -329,11 +342,11 @@ public class GUI extends JFrame implements ActionListener, KeyListener
     Calendar cal = new GregorianCalendar();
     cal.setTime((java.util.Date)(timeSpinner.getValue()));
     String day = (new String[] {"saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"})[cal.get(Calendar.DAY_OF_WEEK)]; // 1-indexed -_-
-    Functions.Step[] path = Functions.findPath(dep.getSelectedValue().toString(), arr.getSelectedValue().toString(), cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE), day, conn, wheelchair.isSelected());
+    Functions.Step[] path = Functions.findPath(dep.getSelectedValue().toString(), arr.getSelectedValue().toString(), cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE), day, conn, wheelchair.isSelected(), ((Integer)(changesSpinner.getValue())).intValue());
     
     if (path == null)
     {
-      JOptionPane.showMessageDialog(this, "Sorry, no route could be found at the given time!", "No Route Found", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(this, "Sorry, no route could be found!", "No Route Found", JOptionPane.ERROR_MESSAGE);
     }
     else if (path.length == 1)
     {

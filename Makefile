@@ -34,3 +34,6 @@ clean:
 
 cleandb:
 	rm -f ptv.db
+
+lines:
+	cat ${SOURCES} | wc -l
