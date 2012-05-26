@@ -2,6 +2,11 @@ import java.sql.*;
 
 /**
  * Prints statistics about the database so you know the parser worked.
+ *
+ * For the Stations table, it lists each station name and id.
+ *
+ * For the Connections table, it lists how many connections are applicable for
+ * each day, as well as the proportion which are accessible.
  */
 public class DumpDatabase
 {

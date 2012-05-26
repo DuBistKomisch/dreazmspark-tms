@@ -78,6 +78,8 @@ Time is stored as the number of minutes since midnight at the start of the day.
 Using the Program
 =================
 
+NOTE: To skip the splash screen, press any key.
+
 After the splash screen animation plays, the main interface is displayed.
 Typing in the text boxes above the station list searches.
 Select additional options and then press "GO!".
@@ -90,7 +92,7 @@ Essendon to Huntingdale at 07:00 Thursday. (1 change, 3 results)
 Hoppers Crossing to Werribee Plaze Shopping Centre/Heaths Rd at 12:00 Friday. (1 change, 3 results)
 
 The programs labels every route as a "train" at the moment, even if it's a bus.
-If the GUI seems to be messed up, try resizing the window larger.
+If the GUI appears to be messed up, try resizing the window larger.
 
 Eclipse
 -------
@@ -103,10 +105,13 @@ the libraries under Build Path Configuration.
 Since a pre-filled database is included, you can run GUI as a Java application.
 
 To generate the database from the .html timetables, delete ptv.db and then
-run ParseTimetable with content/tt/train as the only argument.
+run ParseTimetable twice with "content/tt/train train" and "content/tt/bus bus"
+as its arguments respectively.
 
 Make
 ----
+
+NOTE: Requires GNU make. Use gmake if on Solaris, etc.
 
 To compile the program files:
   make

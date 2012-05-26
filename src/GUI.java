@@ -8,10 +8,15 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-@SuppressWarnings("serial")
 /**
  * The class the user runs to use the program.
+ *
+ * Displays a splash screen followed by the main interface screen.
+ *
+ * Once options are entered and "OK" is pressed, results are returned in a
+ * popup window.
  */
+@SuppressWarnings("serial")
 public class GUI extends JFrame implements ActionListener, KeyListener
 {
   Connection conn;
@@ -46,7 +51,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener
   int delay = 100;
   
   /**
-   * Starts program.
+   * Starts the program.
    */
   public static void main(String args[]) throws Exception
   {
@@ -354,7 +359,8 @@ public class GUI extends JFrame implements ActionListener, KeyListener
   /**
    * Callback for pressing GO.
    *
-   * Passes GUI input parameters to Functions.findPath() and parses into a human-readable message.
+   * Passes GUI input parameters to Functions.findPath() and parses the list
+   * returned into a human-readable series of instructions.
    *
    * Presents an error message if no path is found or already at destination.
    */

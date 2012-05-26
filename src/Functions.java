@@ -7,22 +7,18 @@ public class Functions
   static PreparedStatement connectedQuery;
   static PreparedStatement timesQuery;
   
-        // TODO use Dijkstra's algorithm to find best path, not just soonest option at each step
   /**
-	 Finds the shortest path between two connected station in the ptv database.
-	 
-	 	 
-	 	 
-	 @param  startingID The 'name' element of the departing station  
-	 @param  endingID The 'name' element of the destination station
-	 @param time The time the user has specified they want to leave in minutes 
-	 @param day The day of the week the user has specified they want to leave
-	 @param conn The connection to the database using sqllite
-	 @param accessible Whether or not the route taken may include sections that do not accommodate disabled access
-	 @param maxChanges The maximum allowed amount of transfers between different routes or methods of transport
-	 @return An array of {@link Step} in order from destination, all the way back to departure location
-
-	 */
+   * Finds the shortest path between two connected station in the ptv database.
+   *
+   * @param startingID The 'name' element of the departing station  
+   * @param endingID The 'name' element of the destination station
+   * @param time The time the user has specified they want to leave in minutes 
+   * @param day The day of the week the user has specified they want to leave
+   * @param conn The connection to the database using sqllite
+   * @param accessible Whether or not the route taken may include sections that do not accommodate disabled access
+   * @param maxChanges The maximum allowed amount of transfers between different routes or methods of transport
+   * @return An array of {@link Step} in order from destination, all the way back to departure location
+   */
   public static Step[] findPath(String startingID, String endingID, int time, String day, Connection conn, boolean accessible, int maxChanges)
   {
     // convert strings to ints
@@ -69,22 +65,18 @@ public class Functions
     
     return null;
   }
-  /**
-	 Finds the first connection between the time given in parameters, and after the given time 
-	 
-	 	 
-	 	 
-	 @param  station The 'id' element of the departing station  
-	 @param  destination The 'id' element of the destination station
-	 @param time The time in minutes that the result must be later than
-	 @param conn The connection to the database using sqllite
-	 @param changesLeft The remaining allowed amount of transfers between different routes or methods of transport
-	 @param initial The first station this function is called on
-	 @return Returns true if a connection is found
 
-	 */
-  
-  
+  /**
+   * Finds the first connection between the time given in parameters, and after the given time 
+   *
+   * @param station The 'id' element of the departing station  
+   * @param destination The 'id' element of the destination station
+   * @param time The time in minutes that the result must be later than
+   * @param conn The connection to the database using sqllite
+   * @param changesLeft The remaining allowed amount of transfers between different routes or methods of transport
+   * @param initial The first station this function is called on
+   * @return Returns true if a connection is found
+   */
   public static boolean recursiveFunction(int station, int destination, int time, Connection conn, int changesLeft, boolean initial) throws SQLException
   {
     // success condition
@@ -142,23 +134,20 @@ public class Functions
     
     return false;
   }
-  
+  /**
+   * The step object holds all the information required for listing a route, as gained from finding a connection.
+   *
+   * Once a connection is found, a step is created, containing the id of the departure station, and the time of both
+   * departure and arrival in minutes. Once read through parameters, the time is converted from minutes, into
+   * hours and minutes.
+   * @param id The 'id' element of the departing station  
+   * @param dt the time of departure
+   * @param st The time in minutes that the result must be later than
+   */
   public static class Step
   {
     int id, st, dt;
     String sh, sm, dh, dm;
-    /**
-	 The step object holds all the information required for listing a route, as gained from finding a connection.
-	 
-	 Once a connection is found, a step is created, containing the id of the departure station, and the time of both
-	 departure and arrival i minutes. Once read through parameters, the time is converted from minutes, into
-	 hours and minutes.
-	 
-	 		 	 
-	 @param id The 'id' element of the departing station  
-	 @param dt the time of departure
-	 @param st The time in minutes that the result must be later than
-	  */
     public Step (int id, int dt, int st)
     {
       this.id = id;

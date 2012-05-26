@@ -138,7 +138,8 @@ public class ParseTimetable
     int isProcessingAccessible = -1;
     ArrayList<Boolean> accessible = new ArrayList<Boolean>();
 
-    /** checks whether an attribute actually exists whatsoever, even if it has no value
+    /**
+     * Checks whether an attribute actually exists whatsoever, even if it has no value
      * e.g. "selected" in HTML such as <option value="abc" selected>abc</option>
      */
     public static boolean isDefinedAtAll (AttributeSet a, Object name)
